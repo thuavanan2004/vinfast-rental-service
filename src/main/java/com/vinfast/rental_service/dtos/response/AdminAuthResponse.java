@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.modules.admin.application.dto.response;
+package com.vinfast.rental_service.dtos.response;
 
 import lombok.Data;
 

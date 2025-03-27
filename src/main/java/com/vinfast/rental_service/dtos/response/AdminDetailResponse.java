@@ -1,8 +1,9 @@
-package com.vinfast.rental_service.modules.admin.application.dto.response;
+package com.vinfast.rental_service.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.vinfast.rental_service.modules.admin.domain.enums.AdminRole;
-import com.vinfast.rental_service.modules.admin.domain.enums.AdminStatus;
+
+import com.vinfast.rental_service.enums.AdminRole;
+import com.vinfast.rental_service.enums.AdminStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -1,24 +1,29 @@
-package com.vinfast.rental_service.modules.admin.application.service.Impl;
+package com.vinfast.rental_service.service.Impl;
 
-import com.vinfast.rental_service.modules.admin.application.dto.response.AdminDetailResponse;
-import com.vinfast.rental_service.modules.admin.application.mapper.AdminMapper;
-import com.vinfast.rental_service.modules.admin.application.service.AdminService;
-import com.vinfast.rental_service.modules.admin.domain.entity.Admin;
-import com.vinfast.rental_service.modules.admin.domain.repository.AdminRepository;
-import lombok.RequiredArgsConstructor;
+
+import com.vinfast.rental_service.dtos.response.AdminDetailResponse;
+import com.vinfast.rental_service.entity.Admin;
+import com.vinfast.rental_service.mapper.AdminMapper;
+import com.vinfast.rental_service.repository.AdminRepository;
+import com.vinfast.rental_service.service.AdminService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminServiceImpl implements AdminService {
 
     private final AdminRepository adminRepository;
 
     private final AdminMapper adminMapper;
+
+    public AdminServiceImpl(AdminRepository adminRepository, AdminMapper adminMapper) {
+        this.adminRepository = adminRepository;
+        this.adminMapper = adminMapper;
+    }
 
     @Override
     public AdminDetailResponse getAdminById(long id) {

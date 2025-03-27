@@ -1,7 +1,7 @@
-package com.vinfast.rental_service.modules.admin.domain.entity;
+package com.vinfast.rental_service.entity;
 
-import com.vinfast.rental_service.modules.admin.domain.enums.AdminRole;
-import com.vinfast.rental_service.modules.admin.domain.enums.AdminStatus;
+import com.vinfast.rental_service.enums.AdminRole;
+import com.vinfast.rental_service.enums.AdminStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -40,7 +40,7 @@ public class Admin {
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "ENUM('super_admin', 'admin', 'support', 'content_manager')")
+    @Column(nullable = false)
     private AdminRole role;
 
     @Column(columnDefinition = "JSON")

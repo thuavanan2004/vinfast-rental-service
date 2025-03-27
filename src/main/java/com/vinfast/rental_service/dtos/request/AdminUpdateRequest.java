@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.modules.admin.application.dto.request;
+package com.vinfast.rental_service.dtos.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;

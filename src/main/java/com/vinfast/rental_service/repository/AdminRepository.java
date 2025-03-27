@@ -1,6 +1,6 @@
-package com.vinfast.rental_service.modules.admin.domain.repository;
+package com.vinfast.rental_service.repository;
 
-import com.vinfast.rental_service.modules.admin.domain.entity.Admin;
+import com.vinfast.rental_service.entity.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
