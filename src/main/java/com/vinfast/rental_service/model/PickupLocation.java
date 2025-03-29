@@ -47,6 +47,7 @@ public class PickupLocation {
     private String description;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private PickupLocationStatus pickupLocationStatus = PickupLocationStatus.active;
 
     @Column(name = "created_at", updatable = false)

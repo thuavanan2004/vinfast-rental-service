@@ -1,11 +1,16 @@
 package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.dtos.response.PageResponse;
+import com.vinfast.rental_service.dtos.response.RentalHistoryResponse;
 import com.vinfast.rental_service.dtos.response.UserResponse;
+import com.vinfast.rental_service.enums.RentalOrderStatus;
 import com.vinfast.rental_service.enums.UserStatus;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
+import com.vinfast.rental_service.mapper.RentalHistoryMapper;
 import com.vinfast.rental_service.mapper.UserMapper;
+import com.vinfast.rental_service.model.RentalOrder;
 import com.vinfast.rental_service.model.User;
+import com.vinfast.rental_service.repository.RentalOrderRepository;
 import com.vinfast.rental_service.repository.UserRepository;
 import com.vinfast.rental_service.repository.specification.UserSpecificationBuilder;
 import com.vinfast.rental_service.service.UserService;
@@ -28,11 +33,17 @@ import static com.vinfast.rental_service.utils.AppConst.SEARCH_SPEC_OPERATOR;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    private final RentalOrderRepository rentalOrderRepository;
+
     private final UserMapper userMapper;
+
+    private final RentalHistoryMapper rentalHistoryMapper;
+
 
     private User getUserById(long userId){
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
+
     @Override
     public PageResponse<?> getAll(Pageable pageable, String[] users) {
         Page<User> listUser;
@@ -71,4 +82,18 @@ public class UserServiceImpl implements UserService {
 
         log.info("Change status successfully!");
     }
+
+    @Override
+    public PageResponse<?> rentalHistory(long userId, Pageable pageable) {
+        Page<RentalOrder> rentalOrderList = rentalOrderRepository.findAllByUserId(userId, pageable);
+
+        List<RentalHistoryResponse> list = rentalOrderList.stream().map(rentalHistoryMapper::toResponse).toList();
+        return PageResponse.builder()
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalPage(rentalOrderList.getTotalPages())
+                .items(list)
+                .build();
+    }
+
 }

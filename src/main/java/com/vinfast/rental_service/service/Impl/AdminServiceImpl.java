@@ -5,6 +5,7 @@ import com.vinfast.rental_service.dtos.request.AdminLoginRequest;
 import com.vinfast.rental_service.dtos.response.AdminAuthResponse;
 import com.vinfast.rental_service.dtos.response.AdminDetailResponse;
 import com.vinfast.rental_service.dtos.response.AdminProfileResponse;
+import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.model.Admin;
