@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Date;
 
@@ -40,6 +41,19 @@ public class GlobalExceptionHandler {
             errorResponse.setError("Invalid Data");
             errorResponse.setMessage(message);
         }
+        return errorResponse;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleValidationTypeMismatchException(Exception e, WebRequest webRequest){
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(new Date());
+        errorResponse.setStatus(BAD_REQUEST.value());
+        errorResponse.setPath(webRequest.getDescription(false).replace("uri=", ""));
+        String message = e.getMessage();
+        errorResponse.setError("Invalid Data");
+        errorResponse.setMessage(message);
         return errorResponse;
     }
 }

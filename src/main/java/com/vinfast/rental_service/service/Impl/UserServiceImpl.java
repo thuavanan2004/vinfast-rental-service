@@ -2,6 +2,8 @@ package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.dtos.response.UserResponse;
+import com.vinfast.rental_service.enums.UserStatus;
+import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.UserMapper;
 import com.vinfast.rental_service.model.User;
 import com.vinfast.rental_service.repository.UserRepository;
@@ -28,6 +30,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
+    private User getUserById(long userId){
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
     @Override
     public PageResponse<?> getAll(Pageable pageable, String[] users) {
         Page<User> listUser;
@@ -51,5 +56,19 @@ public class UserServiceImpl implements UserService {
                 .totalPage(listUser.getTotalPages())
                 .items(list)
                 .build();
+    }
+
+    @Override
+    public UserResponse getUser(long userId) {
+        return userMapper.toDTO(getUserById(userId));
+    }
+
+    @Override
+    public void changeStatus(long userId, UserStatus status) {
+        User user = getUserById(userId);
+        user.setStatus(status);
+        userRepository.save(user);
+
+        log.info("Change status successfully!");
     }
 }

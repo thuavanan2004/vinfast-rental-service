@@ -1,6 +1,7 @@
 package com.vinfast.rental_service.model;
 
 import com.vinfast.rental_service.enums.UserStatus;
+import com.vinfast.rental_service.validate.EnumPattern;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,7 +47,7 @@ public class User {
     private Boolean verified = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private UserStatus status = UserStatus.active;
 
     @Column(nullable = false, updatable = false)
