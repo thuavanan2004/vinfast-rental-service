@@ -2,6 +2,8 @@ package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.dtos.request.CarModelCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarModelUpdateRequest;
+import com.vinfast.rental_service.dtos.response.CarModelResponse;
+import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.CarModelMapper;
 import com.vinfast.rental_service.model.CarImage;
 import com.vinfast.rental_service.model.CarModel;
@@ -11,11 +13,13 @@ import com.vinfast.rental_service.service.CarModelService;
 import com.vinfast.rental_service.service.CloudinaryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CarModelServiceImpl implements CarModelService {
@@ -27,6 +31,10 @@ public class CarModelServiceImpl implements CarModelService {
     private final CarImageRepository carImageRepository;
 
     private final CarModelMapper carModelMapper;
+
+    public CarModel getCarModelById(long carModelId){
+        return carModelRepository.findById(carModelId).orElseThrow(() -> new ResourceNotFoundException("Car model not found"));
+    }
 
     @Override
     @Transactional
@@ -55,10 +63,23 @@ public class CarModelServiceImpl implements CarModelService {
         }
 
         carImageRepository.saveAll(carImages);
+        log.info("Service: Create car-model successfully");
     }
 
     @Override
     public void updateCarModel(long carModelId, CarModelUpdateRequest request) {
+        CarModel carModel = getCarModelById(carModelId);
+        carModelMapper.updateCarModel(request, carModel);
 
+        carModelRepository.save(carModel);
+        log.info("Service: Update car-model successfully");
     }
+
+    @Override
+    public CarModelResponse getCarModel(long carModelId) {
+        CarModel carModel = getCarModelById(carModelId);
+
+        return carModelMapper.toDTO(carModel);
+    }
+
 }

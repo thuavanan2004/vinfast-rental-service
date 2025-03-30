@@ -56,4 +56,16 @@ public class AdminCarModelController {
         }
     }
 
+    @Operation(summary = "Get car-model")
+    @GetMapping("/{carModelId}")
+    public ResponseData<?> getCarModel(@PathVariable long carModelId){
+        log.info("Get car-model");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Update car-model successfully", carModelService.getCarModel(carModelId));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update car-model failed");
+        }
+    }
+
 }

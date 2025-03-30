@@ -1,33 +1,33 @@
 package com.vinfast.rental_service.dtos.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.List;
 
-@Getter
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CarModelResponse {
     private Long id;
     private String name;
     private String modelCode;
-    private Long brandId;
     private String vehicleType;
-    private BigDecimal batteryCapacity;
-    private Integer rangePerCharge;
-    private Integer maxSpeed;
-    private BigDecimal chargingTime;
+    private String batteryCapacity;
+    private String rangePerCharge;
+    private String maxSpeed;
+    private String chargingTime;
     private Integer seatingCapacity;
-    private Integer motorPower;
-    private BigDecimal acceleration;
-    private Integer trunkCapacity;
-    private Integer weightKg;
-    private Integer lengthMm;
-    private Integer widthMm;
-    private Integer heightMm;
-    private Integer wheelbaseMm;
+    private String motorPower;
+    private String acceleration;
+    private String trunkCapacity;
+    private String weight;
+    private String lengthWidthHeight;
+    private String wheelbase;
     private String tireSize;
     private String chargingPortType;
     private BigDecimal basePricePerDay;
@@ -36,7 +36,6 @@ public class CarModelResponse {
     private BigDecimal basePricePerYear;
     private String description;
     private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+    private List<String> imageUrls;
 }
+
