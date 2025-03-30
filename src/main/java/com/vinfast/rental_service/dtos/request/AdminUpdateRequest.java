@@ -21,5 +21,5 @@ public class AdminUpdateRequest {
 
     private String fullName;
     private String phone;
-    private String status; // "active", "inactive", etc.
+    private String status;
 }

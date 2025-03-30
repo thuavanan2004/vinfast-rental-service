@@ -2,14 +2,12 @@ package com.vinfast.rental_service.controllers.admin;
 
 import com.vinfast.rental_service.dtos.response.ResponseData;
 import com.vinfast.rental_service.dtos.response.ResponseError;
-import com.vinfast.rental_service.enums.RentalOrderStatus;
 import com.vinfast.rental_service.enums.UserStatus;
 import com.vinfast.rental_service.service.UserService;
 import com.vinfast.rental_service.validate.EnumPattern;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
-public class UserManagementController {
+public class AdminUserController {
     private final UserService userService;
 
     @Operation(summary = "Get list users for admin management")

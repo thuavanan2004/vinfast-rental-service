@@ -31,14 +31,6 @@ public record RentalHistoryResponse(
         PickupLocation pickupLocation
 ) {
 
-    /**
-     * Detailed car information
-     *
-     * @param modelName Official car model name
-     * @param licensePlate Vehicle registration number
-     * @param color Primary color of the vehicle
-     * @param imageUrl Optional URL to car image
-     */
     public record CarDetails(
             String modelName,
             String licensePlate,
@@ -48,13 +40,6 @@ public record RentalHistoryResponse(
             String imageUrl
     ) {}
 
-    /**
-     * Rental time period information
-     *
-     * @param startDate When rental period begins
-     * @param endDate Scheduled return date/time
-     * @param actualReturnDate When vehicle was actually returned (nullable)
-     */
     public record RentalPeriod(
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime startDate,
@@ -67,13 +52,6 @@ public record RentalHistoryResponse(
             LocalDateTime actualReturnDate
     ) {}
 
-    /**
-     * Physical pickup location details
-     *
-     * @param name Location display name
-     * @param address Full street address
-     * @param contactPhone Phone number for location
-     */
     public record PickupLocation(
             String name,
             String address,
