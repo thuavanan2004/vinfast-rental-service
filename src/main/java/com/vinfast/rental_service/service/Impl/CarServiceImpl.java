@@ -4,7 +4,9 @@ import com.vinfast.rental_service.dtos.request.CarCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarUpdateRequest;
 import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
 import com.vinfast.rental_service.dtos.response.CarResponse;
+import com.vinfast.rental_service.dtos.response.MaintenanceDetailResponse;
 import com.vinfast.rental_service.dtos.response.MaintenanceResponse;
+import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.enums.CarStatus;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
@@ -21,9 +23,13 @@ import com.vinfast.rental_service.repository.PickupLocationRepository;
 import com.vinfast.rental_service.service.CarService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -126,10 +132,23 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public MaintenanceResponse maintenanceReport(long maintenanceId) {
+    public MaintenanceDetailResponse maintenanceReport(long maintenanceId) {
         MaintenanceLog maintenanceLog = maintenanceRepository.findById(maintenanceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance not found with id: " + maintenanceId));
 
-        return maintenanceMapper.toDTO(maintenanceLog);
+        return maintenanceMapper.toDetailDTO(maintenanceLog);
+    }
+
+    @Override
+    public PageResponse<?> maintenanceReportsByCarId(long carId, Pageable pageable) {
+        Page<MaintenanceLog> records = maintenanceRepository.findAllByCarId(carId, pageable);
+
+        List<MaintenanceResponse> list = records.stream().map(maintenanceMapper::toDTO).toList();
+        return PageResponse.builder()
+                .page(records.getNumber())
+                .size(records.getSize())
+                .totalPage(records.getTotalPages())
+                .items(list)
+                .build();
     }
 }

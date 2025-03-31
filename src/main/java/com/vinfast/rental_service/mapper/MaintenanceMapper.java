@@ -1,6 +1,7 @@
 package com.vinfast.rental_service.mapper;
 
 import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
+import com.vinfast.rental_service.dtos.response.MaintenanceDetailResponse;
 import com.vinfast.rental_service.dtos.response.MaintenanceResponse;
 import com.vinfast.rental_service.model.Car;
 import com.vinfast.rental_service.model.MaintenanceLog;
@@ -13,11 +14,11 @@ public interface MaintenanceMapper {
     MaintenanceLog toEntity(MaintenanceRequest request);
 
     @Mapping(target = "carInfo", source = "car", qualifiedByName = "mapCarInfo")
-    MaintenanceResponse toDTO(MaintenanceLog entity);
+    MaintenanceDetailResponse toDetailDTO(MaintenanceLog entity);
 
     @Named("mapCarInfo")
-    default MaintenanceResponse.CarInfo mapCarInfo(Car car){
-        return new MaintenanceResponse.CarInfo(
+    default MaintenanceDetailResponse.CarInfo mapCarInfo(Car car){
+        return new MaintenanceDetailResponse.CarInfo(
                 car.getId(),
                 car.getLicensePlate(),
                 car.getVinNumber(),
@@ -30,4 +31,7 @@ public interface MaintenanceMapper {
                 car.getBatteryHealth()
         );
     }
+
+    @Mapping(target = "licensePlate", source = "car.licensePlate")
+    MaintenanceResponse toDTO(MaintenanceLog entity);
 }

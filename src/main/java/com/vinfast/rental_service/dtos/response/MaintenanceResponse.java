@@ -1,12 +1,13 @@
 package com.vinfast.rental_service.dtos.response;
 
-import com.vinfast.rental_service.enums.CarStatus;
 import com.vinfast.rental_service.enums.MaintenanceType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -23,22 +24,4 @@ public class MaintenanceResponse {
     private LocalDate endDate;
     private Integer mileage;
     private String notes;
-    private LocalDateTime createdAt;
-    private CarInfo carInfo;
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class CarInfo{
-        private Long id;
-        private String licensePlate;
-        private String vinNumber;
-        private String color;
-        private LocalDate manufacturingDate;
-        private int currentMileage;
-        private CarStatus status;
-        private LocalDate lastMaintenanceDate;
-        private Integer nextMaintenanceMileage;
-        private BigDecimal batteryHealth;
-    }
 }
