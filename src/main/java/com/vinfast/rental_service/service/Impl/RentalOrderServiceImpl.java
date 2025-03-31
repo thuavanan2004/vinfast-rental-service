@@ -1,7 +1,11 @@
 package com.vinfast.rental_service.service.Impl;
 
+import com.vinfast.rental_service.dtos.request.SpecialRequest;
 import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.dtos.response.RentalOrderResponse;
+import com.vinfast.rental_service.enums.RentalOrderStatus;
+import com.vinfast.rental_service.exceptions.InvalidDataException;
+import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.RentalOrderMapper;
 import com.vinfast.rental_service.model.RentalOrder;
 import com.vinfast.rental_service.repository.RentalOrderRepository;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -58,5 +63,38 @@ public class RentalOrderServiceImpl implements RentalOrderService {
                 .totalPage(records.getTotalPages())
                 .items(results)
                 .build();
+    }
+
+    @Override
+    public void updateRentalOrderStatus(long orderId, RentalOrderStatus status) {
+        RentalOrder order = rentalOrderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        validateStatusTransition(order.getStatus(), status);
+
+        order.setStatus(status);
+        order.setUpdatedAt(LocalDateTime.now());
+        // Log status change
+        // Create admin log
+        // Additional business logic
+        rentalOrderRepository.save(order);
+        log.info("Update order status successfully");
+    }
+
+    @Override
+    public void addSpecialRequest(long orderId, SpecialRequest request) {
+        RentalOrder order = rentalOrderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+        order.setSpecialRequests(request.getSpecialRequest());
+
+        rentalOrderRepository.save(order);
+
+        log.info("Add special request successfully!");
+    }
+
+    private void validateStatusTransition(RentalOrderStatus currentStatus, RentalOrderStatus newStatus) {
+        if (currentStatus == newStatus) {
+            throw new InvalidDataException("Order is already in " + newStatus + " status");
+        }
     }
 }
