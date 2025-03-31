@@ -2,16 +2,21 @@ package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.dtos.request.CarCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarUpdateRequest;
+import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
 import com.vinfast.rental_service.dtos.response.CarResponse;
+import com.vinfast.rental_service.dtos.response.MaintenanceResponse;
 import com.vinfast.rental_service.enums.CarStatus;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.CarMapper;
+import com.vinfast.rental_service.mapper.MaintenanceMapper;
 import com.vinfast.rental_service.model.Car;
 import com.vinfast.rental_service.model.CarModel;
+import com.vinfast.rental_service.model.MaintenanceLog;
 import com.vinfast.rental_service.model.PickupLocation;
 import com.vinfast.rental_service.repository.CarModelRepository;
 import com.vinfast.rental_service.repository.CarRepository;
+import com.vinfast.rental_service.repository.MaintenanceRepository;
 import com.vinfast.rental_service.repository.PickupLocationRepository;
 import com.vinfast.rental_service.service.CarService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +36,10 @@ public class CarServiceImpl implements CarService {
     private final PickupLocationRepository pickupLocationRepository;
 
     private final CarMapper carMapper;
+
+    private final MaintenanceMapper maintenanceMapper;
+
+    private final MaintenanceRepository maintenanceRepository;
 
     @Override
     public void addNewCar(long carModelId, CarCreateRequest request) {
@@ -99,5 +108,28 @@ public class CarServiceImpl implements CarService {
         carRepository.save(car);
 
         log.info("Updated car ID {} with license plate {}", carId, request.getLicensePlate());
+    }
+
+    @Override
+    public void createMaintenance(long carId, MaintenanceRequest request) {
+        Car car = carRepository.findById(carId)
+                .orElseThrow(() -> new ResourceNotFoundException("Car not found with id: " + carId));
+
+        car.setStatus(CarStatus.maintenance);
+
+        MaintenanceLog maintenanceLog = maintenanceMapper.toEntity(request);
+        maintenanceLog.setCar(car);
+
+        maintenanceRepository.save(maintenanceLog);
+
+        log.info("Create maintenance log successfully!");
+    }
+
+    @Override
+    public MaintenanceResponse maintenanceReport(long maintenanceId) {
+        MaintenanceLog maintenanceLog = maintenanceRepository.findById(maintenanceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Maintenance not found with id: " + maintenanceId));
+
+        return maintenanceMapper.toDTO(maintenanceLog);
     }
 }

@@ -4,6 +4,7 @@ package com.vinfast.rental_service.controllers.admin;
 import com.vinfast.rental_service.dtos.request.CarCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarModelCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarUpdateRequest;
+import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
 import com.vinfast.rental_service.dtos.response.ResponseData;
 import com.vinfast.rental_service.dtos.response.ResponseError;
 import com.vinfast.rental_service.enums.CarStatus;
@@ -99,6 +100,39 @@ public class AdminCarController {
         } catch (InvalidDataException e) {
             log.error("Update info car: InvalidDataException: {}", e.getMessage());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
+        }
+    }
+
+    @Operation(summary = "Create maintenance for car")
+    @PostMapping("/{carId}/maintenance")
+    public ResponseData<?> createMaintenance(@PathVariable @Min(1) long carId,
+                                             @RequestBody @Valid MaintenanceRequest request){
+        log.info("Create maintenance for car");
+        try{
+            carService.createMaintenance(carId, request);
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Create maintenance successfully");
+        }catch (ResourceNotFoundException e) {
+            log.error("Create maintenance: ResourceNotFoundException: {}", e.getMessage());
+            return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
+        }
+    }
+
+    @Operation(summary = "Get maintenance-report for car")
+    @GetMapping("/{maintenanceId}/maintenance-report")
+    public ResponseData<?> maintenanceReport(@PathVariable @Min(1) long maintenanceId){
+        log.info("Get maintenance for car");
+        try{
+
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Get maintenance-report successfully", carService.maintenanceReport(maintenanceId));
+        }catch (ResourceNotFoundException e) {
+            log.error("Get maintenance: ResourceNotFoundException: {}", e.getMessage());
+            return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
