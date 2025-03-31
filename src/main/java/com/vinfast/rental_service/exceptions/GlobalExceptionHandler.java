@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
         return errorResponse;
     }
 
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, IllegalArgumentException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, IllegalArgumentException.class, InvalidDataException.class})
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleValidationTypeMismatchException(Exception e, WebRequest webRequest){
         ErrorResponse errorResponse = new ErrorResponse();

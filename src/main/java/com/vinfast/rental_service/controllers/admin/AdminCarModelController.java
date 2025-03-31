@@ -26,6 +26,18 @@ public class AdminCarModelController {
 
     private final CarModelService carModelService;
 
+    @Operation(summary = "Get car-model")
+    @GetMapping("/{carModelId}")
+    public ResponseData<?> getCarModel(@PathVariable long carModelId){
+        log.info("Get car-model");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Update car-model successfully", carModelService.getCarModel(carModelId));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update car-model failed");
+        }
+    }
+
     @Operation(summary = "Create car-model")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseData<?> createCarModel(@Valid @ModelAttribute CarModelCreateRequest request){
@@ -50,18 +62,6 @@ public class AdminCarModelController {
 
             carModelService.updateCarModel(carModelId, request);
             return new ResponseData<>(HttpStatus.OK.value(), "Update car-model successfully");
-        }catch (Exception e){
-            log.error("errorMessage={}", e.getMessage(), e.getCause());
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update car-model failed");
-        }
-    }
-
-    @Operation(summary = "Get car-model")
-    @GetMapping("/{carModelId}")
-    public ResponseData<?> getCarModel(@PathVariable long carModelId){
-        log.info("Get car-model");
-        try{
-            return new ResponseData<>(HttpStatus.OK.value(), "Update car-model successfully", carModelService.getCarModel(carModelId));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update car-model failed");
