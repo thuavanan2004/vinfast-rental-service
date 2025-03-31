@@ -22,6 +22,9 @@ public class RentalOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "order_code", nullable = false, unique = true)
+    private String orderCode;
+
     @Column(name = "start_datetime", nullable = false)
     private LocalDateTime startDatetime;
 
@@ -66,7 +69,7 @@ public class RentalOrder {
     private List<OrderInsuranceOption> insuranceOptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "order")
-    private List<Payment> payments = new ArrayList<>();
+        private List<Payment> payments = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
