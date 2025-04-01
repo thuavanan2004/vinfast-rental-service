@@ -29,9 +29,6 @@ public class AdminCreateRequest {
     )
     private String password;
 
-    @NotBlank(message = "Role cannot be blank")
-    private String role;
-
     private String fullName;
     private String phone;
 }

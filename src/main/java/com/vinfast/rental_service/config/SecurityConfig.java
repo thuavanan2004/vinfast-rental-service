@@ -1,12 +1,11 @@
 package com.vinfast.rental_service.config;
 
 
-import com.vinfast.rental_service.service.Impl.AdminDetailsServiceImpl;
+import com.vinfast.rental_service.service.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -31,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-    private final AdminDetailsServiceImpl adminDetailsService;
+    private final AdminDetailsService adminDetailsService;
 
     private final JwtAuthenticationFilter JwtAuthenticationFilter;
 

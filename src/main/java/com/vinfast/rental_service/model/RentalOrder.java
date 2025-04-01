@@ -41,18 +41,22 @@ public class RentalOrder {
     @Column(name = "base_price", nullable = false)
     private BigDecimal basePrice;
 
+    @Builder.Default
     @Column(name = "insurance_fee", columnDefinition = "DECIMAL(10,2) DEFAULT 0")
     private BigDecimal insuranceFee = BigDecimal.valueOf(0);
 
+    @Builder.Default
     @Column(name = "additional_fee", columnDefinition = "DECIMAL(10,2) DEFAULT 0")
     private BigDecimal additionalFee = BigDecimal.valueOf(0);
 
+    @Builder.Default
     @Column(name = "discount_amount", columnDefinition = "DECIMAL(10,2) DEFAULT 0")
     private BigDecimal discountAmount = BigDecimal.valueOf(0);
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private RentalOrderStatus status = RentalOrderStatus.active;
 
@@ -65,6 +69,7 @@ public class RentalOrder {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "order")
     private List<OrderInsuranceOption> insuranceOptions = new ArrayList<>();
 

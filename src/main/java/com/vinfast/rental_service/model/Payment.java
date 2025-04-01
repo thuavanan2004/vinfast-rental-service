@@ -35,6 +35,7 @@ public class Payment {
     @Column(name = "transaction_id")
     private String transactionId;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus = PaymentStatus.pending;

@@ -8,6 +8,5 @@ public class AdminProfileResponse {
     private String email;
     private String fullName;
     private String phone;
-    private String role;
     private String status;
 }

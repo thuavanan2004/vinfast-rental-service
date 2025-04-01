@@ -5,7 +5,6 @@ import com.vinfast.rental_service.dtos.request.AdminLoginRequest;
 import com.vinfast.rental_service.dtos.response.AdminAuthResponse;
 import com.vinfast.rental_service.dtos.response.AdminDetailResponse;
 import com.vinfast.rental_service.dtos.response.AdminProfileResponse;
-import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.model.Admin;
@@ -23,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 

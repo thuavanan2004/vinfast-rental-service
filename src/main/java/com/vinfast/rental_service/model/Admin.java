@@ -14,7 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "admins")
@@ -25,32 +27,24 @@ import java.util.List;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Admin implements UserDetails, Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    @Column(name = "full_name", length = 100)
+    @Column(name = "full_name")
     private String fullName;
 
-    @Column(length = 20)
     private String phone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private AdminRole role;
-
-    @Column(columnDefinition = "JSON")
-    private String permissions;
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
@@ -67,9 +61,41 @@ public class Admin implements UserDetails, Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AdminLog> adminLogs;
+
+    @OneToMany(mappedBy = "assignedAdmin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupportTicket> supportTickets;
+
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SystemSetting> systemSettings;
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+//        if (role != null) {
+//
+//            if (role.getRolePermissions() != null) {
+//                for (RolePermission rolePermission : role.getRolePermissions()) {
+//                    if (rolePermission.getPermission() != null) {
+//                        authorities.add(new SimpleGrantedAuthority(rolePermission.getPermission().getCode()));
+//                    }
+//                }
+//            }
+//
+//            if (role.getName() != null) {
+//                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+//            }
+//        } else {
+//            System.out.println("Admin has no role assigned!");
+//        }
+
+        return authorities;
     }
 
     @Override

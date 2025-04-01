@@ -1,6 +1,6 @@
 package com.vinfast.rental_service.config;
 
-import com.vinfast.rental_service.service.Impl.AdminDetailsServiceImpl;
+import com.vinfast.rental_service.service.AdminDetailsService;
 import com.vinfast.rental_service.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +26,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final AdminDetailsServiceImpl adminDetailsService;
+    private final AdminDetailsService adminDetailsService;
 
 
     @Override

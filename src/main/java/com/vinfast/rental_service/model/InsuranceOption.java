@@ -33,12 +33,14 @@ public class InsuranceOption {
     @Column(name = "coverage_details")
     private String coverageDetails;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private InsuranceOptionStatus status = InsuranceOptionStatus.active;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "insuranceOption")
     private List<OrderInsuranceOption> orderOptions = new ArrayList<>();
 
