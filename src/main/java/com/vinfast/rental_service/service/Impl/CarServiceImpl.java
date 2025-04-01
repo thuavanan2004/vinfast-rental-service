@@ -151,4 +151,18 @@ public class CarServiceImpl implements CarService {
                 .items(list)
                 .build();
     }
+
+    @Override
+    public PageResponse<?> getListCarByCarModel(long carModelId, Pageable pageable) {
+        Page<Car> records = carRepository.findAllByCarModelId(carModelId, pageable);
+
+        List<CarResponse> list = records.stream().map(carMapper::toDTO).toList();
+
+        return PageResponse.builder()
+                .page(records.getNumber())
+                .size(records.getSize())
+                .totalPage(records.getTotalPages())
+                .items(list)
+                .build();
+    }
 }

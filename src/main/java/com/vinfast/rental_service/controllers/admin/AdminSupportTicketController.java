@@ -38,6 +38,18 @@ public class AdminSupportTicketController {
         }
     }
 
+    @Operation(summary = "Get support ticket by id")
+    @GetMapping("/{supportTicketId}")
+    public ResponseData<?> getSupportTicketById(@PathVariable @Min(1) long supportTicketId){
+        log.info("Get support ticket by id");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Get support ticket by id successfully", supportTicketService.getSupportTicketById(supportTicketId));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get support ticket by id failed: " + e.getMessage());
+        }
+    }
+
     @Operation(summary = "Processing assignment")
     @PutMapping("/{supportTicketId}/assign/{adminId}")
     public ResponseData<?> assign(@PathVariable @Min(1) long supportTicketId, @PathVariable @Min(1) long adminId){

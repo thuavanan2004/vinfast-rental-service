@@ -23,4 +23,6 @@ public interface CarService {
     MaintenanceDetailResponse maintenanceReport(long maintenanceId);
 
     PageResponse<?> maintenanceReportsByCarId(long carId, Pageable pageable);
+
+    PageResponse<?> getListCarByCarModel(long carModelId, Pageable pageable);
 }

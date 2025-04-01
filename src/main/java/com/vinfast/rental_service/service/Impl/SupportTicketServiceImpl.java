@@ -79,4 +79,11 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         log.info("Change status support ticket successfully");
     }
 
+    @Override
+    public SupportTicketResponse getSupportTicketById(long supportTicketId) {
+        SupportTicket supportTicket = supportTicketRepository.findById(supportTicketId)
+                .orElseThrow(() -> new ResourceNotFoundException("Support ticker not found with id: " + supportTicketId));
+        return supportTicketMapper.toDTO(supportTicket);
+    }
+
 }

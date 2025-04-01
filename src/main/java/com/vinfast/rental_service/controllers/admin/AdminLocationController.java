@@ -29,6 +29,18 @@ public class AdminLocationController {
 
     private final LocationService locationService;
 
+    @Operation(summary = "Get location by id")
+    @GetMapping("/{locationId}")
+    public ResponseData<?> getLocationById(@PathVariable @Min (1) long locationId){
+        log.info("Get location by id");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Get location by id successfully", locationService.getLocationById(locationId));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get location by id failed: " + e.getMessage());
+        }
+    }
+
     @Operation(summary = "Create new pickup location")
     @PostMapping
     public ResponseData<?> createLocation(@RequestBody @Valid LocationRequest request){

@@ -34,6 +34,18 @@ public class AdminCarController {
 
     private final CarService carService;
 
+    @Operation(summary = "Get list car by car model id")
+    @GetMapping("/car-models/{carModelId}")
+    public ResponseData<?> getListCarByCarModel(@PathVariable @Min(1) long carModelId, Pageable pageable){
+        log.info("Get list car by car model id");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Get list car by car model id successfully", carService.getListCarByCarModel(carModelId, pageable));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get list car by car model id failed");
+        }
+    }
+
     @Operation(summary = "Get car to the system")
     @GetMapping("/{carId}")
     public ResponseData<?> getInfoCar(@PathVariable @Min(1) long carId){
@@ -45,7 +57,6 @@ public class AdminCarController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get car to the system failed");
         }
     }
-
 
     @Operation(summary = "Add new car to the system")
     @PostMapping("/{carModelId}")

@@ -1,6 +1,7 @@
 package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.dtos.request.LocationRequest;
+import com.vinfast.rental_service.dtos.response.LocationResponse;
 import com.vinfast.rental_service.enums.PickupLocationStatus;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
@@ -11,6 +12,8 @@ import com.vinfast.rental_service.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -52,5 +55,17 @@ public class LocationServiceImpl implements LocationService {
 
         locationRepository.save(location);
         log.info("Change status location successfully");
+    }
+
+    @Override
+    public List<LocationResponse> getListLocation() {
+        return locationRepository.findAll().stream().map(locationMapper::toDTO).toList();
+    }
+
+    @Override
+    public LocationResponse getLocationById(long locationId) {
+        PickupLocation location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found with id: " + locationId));
+        return locationMapper.toDTO(location);
     }
 }

@@ -10,6 +10,7 @@ import com.vinfast.rental_service.model.CarModel;
 import com.vinfast.rental_service.repository.CarImageRepository;
 import com.vinfast.rental_service.repository.CarModelRepository;
 import com.vinfast.rental_service.service.CarModelService;
+import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.service.CloudinaryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +81,12 @@ public class CarModelServiceImpl implements CarModelService {
         CarModel carModel = getCarModelById(carModelId);
 
         return carModelMapper.toDTO(carModel);
+    }
+
+    @Override
+    public List<CarModelResponse> getListCarModel() {
+        List<CarModel> records = carModelRepository.findAll();
+        return records.stream().map(carModelMapper::toDTO).toList();
     }
 
 }

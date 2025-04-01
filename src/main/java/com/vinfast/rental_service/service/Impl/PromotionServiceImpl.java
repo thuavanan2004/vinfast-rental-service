@@ -65,4 +65,11 @@ public class PromotionServiceImpl implements PromotionService {
         log.info("Update promotion successfully");
     }
 
+    @Override
+    public PromotionResponse getPromotionById(long promotionId) {
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Promotion not found"));
+        return promotionMapper.toDTO(promotion);
+    }
+
 }

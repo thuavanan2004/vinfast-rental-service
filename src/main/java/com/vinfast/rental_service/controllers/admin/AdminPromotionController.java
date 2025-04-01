@@ -43,6 +43,19 @@ public class AdminPromotionController {
         }
     }
 
+    @Operation(summary = "Get promotion by id")
+    @GetMapping("/{promotionId}")
+    public ResponseData<?> getPromotionById(@PathVariable @Min(1) long promotionId){
+        log.info("Get promotion by id");
+        try{
+
+            return new ResponseData<>(HttpStatus.OK.value(), "Get promotion by id successfully", promotionService.getPromotionById(promotionId));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get promotion by id failed: " + e.getMessage());
+        }
+    }
+
     @Operation(summary = "Get list promotion")
     @GetMapping
     public ResponseData<?> getAll(@RequestParam(required = false) @EnumPattern(name="status", regexp = "active|inactive|expired") PromotionStatus status,
