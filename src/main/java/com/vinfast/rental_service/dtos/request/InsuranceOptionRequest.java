@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.dtos.response;
+package com.vinfast.rental_service.dtos.request;
 
 import com.vinfast.rental_service.enums.InsuranceOptionStatus;
 import lombok.Builder;
@@ -6,17 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
-public class InsuranceOptionResponse {
-    private Long id;
+public class InsuranceOptionRequest {
     private String name;
     private String description;
     private BigDecimal dailyRate;
     private String coverageDetails;
     private InsuranceOptionStatus status;
-    private LocalDateTime createdAt;
 }
