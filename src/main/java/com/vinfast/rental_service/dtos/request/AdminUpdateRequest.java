@@ -1,5 +1,7 @@
 package com.vinfast.rental_service.dtos.request;
 
+import com.vinfast.rental_service.enums.AdminStatus;
+import com.vinfast.rental_service.validate.EnumPattern;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class AdminRequest {
+public class AdminUpdateRequest {
     @NotBlank(message = "Username cannot be blank")
     @Size(min = 5, max = 50, message = "Username must be between 5-50 characters")
     private String username;
@@ -19,7 +21,6 @@ public class AdminRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Password cannot be blank")
     @Pattern(
             regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,}$",
             message = "Password must be at least 8 characters with letters and numbers"
@@ -32,4 +33,8 @@ public class AdminRequest {
     @NotNull(message = "roleId must be null")
     @Min(1)
     private long roleId;
+
+    @NotNull(message = "status must be null")
+    @EnumPattern(name="status", regexp = "active|inactive|suspended")
+    private AdminStatus status;
 }

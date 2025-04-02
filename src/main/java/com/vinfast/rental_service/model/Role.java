@@ -1,10 +1,8 @@
 package com.vinfast.rental_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -12,7 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,11 +34,14 @@ public class Role {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RolePermission> rolePermissions;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "role_permissions",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions = new HashSet<>();
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Set<Admin> admins;
-
-
 }

@@ -1,18 +1,22 @@
 package com.vinfast.rental_service.service.Impl;
 
 
-import com.vinfast.rental_service.dtos.request.AdminRequest;
+import com.vinfast.rental_service.dtos.request.AdminCreateRequest;
 import com.vinfast.rental_service.dtos.request.AdminLoginRequest;
-import com.vinfast.rental_service.dtos.response.AdminAuthResponse;
-import com.vinfast.rental_service.dtos.response.AdminDetailResponse;
-import com.vinfast.rental_service.dtos.response.AdminProfileResponse;
+import com.vinfast.rental_service.dtos.request.AdminUpdateRequest;
+import com.vinfast.rental_service.dtos.request.RoleRequest;
+import com.vinfast.rental_service.dtos.response.*;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
+import com.vinfast.rental_service.mapper.PermissionMapper;
+import com.vinfast.rental_service.mapper.RoleMapper;
 import com.vinfast.rental_service.model.Admin;
 import com.vinfast.rental_service.mapper.AdminMapper;
+import com.vinfast.rental_service.model.Permission;
 import com.vinfast.rental_service.model.Role;
 import com.vinfast.rental_service.model.Token;
 import com.vinfast.rental_service.repository.AdminRepository;
+import com.vinfast.rental_service.repository.PermissionRepository;
 import com.vinfast.rental_service.repository.RoleRepository;
 import com.vinfast.rental_service.service.AdminService;
 import com.vinfast.rental_service.service.JwtService;
@@ -26,6 +30,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 
@@ -39,11 +47,17 @@ public class AdminServiceImpl implements AdminService {
 
     private final RoleRepository roleRepository;
 
+    private final PermissionRepository permissionRepository;
+
     private final TokenService tokenService;
 
     private final JwtService jwtService;
 
     private final AdminMapper adminMapper;
+
+    private final RoleMapper roleMapper;
+
+    private final PermissionMapper permissionMapper;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -53,7 +67,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminDetailResponse getAdminById(long id) {
-        Admin admin = adminRepository.findById(id).orElseThrow(() -> new RuntimeException("Admin not found"));
+        Admin admin = adminRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
         return adminMapper.toDetailResponse(admin);
     }
 
@@ -90,7 +104,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void create(AdminRequest request) {
+    public void create(AdminCreateRequest request) {
         Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id:" + request.getRoleId()));
 
@@ -100,6 +114,58 @@ public class AdminServiceImpl implements AdminService {
 
         adminRepository.save(admin);
         log.info("Create account admin successfully");
+    }
+
+    @Override
+    public void update(AdminUpdateRequest request, long adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("Admin not found with id:" + adminId));
+        adminMapper.updateAdminFromDto(request, admin);
+
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id:" + request.getRoleId()));
+        admin.setRole(role);
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            admin.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        adminRepository.save(admin);
+        log.info("Update account admin successfully");
+    }
+
+    @Override
+    public List<RoleResponse> getRoles() {
+        List<Role> roles = roleRepository.findAll();
+        return roles.stream().map(roleMapper::toDTO).toList();
+    }
+
+    @Override
+    public void createRole(RoleRequest request) {
+        if(roleRepository.existsByName(request.getName())){
+            throw new InvalidDataException("Early access has been created");
+        }
+        Role role = roleMapper.toEntity(request);
+
+        roleRepository.save(role);
+    }
+
+    @Transactional
+    @Override
+    public List<PermissionsResponse> getPermissionsByRoleId(long roleId) {
+        Role role = roleRepository.findByIdWithPermissions(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+
+        if (role.getPermissions() == null || role.getPermissions().isEmpty()) {
+            throw new RuntimeException("No permissions found for role with id: " + roleId);
+        }
+        return role.getPermissions().stream().map(permissionMapper::toDTO).toList();
+    }
+
+    @Override
+    public List<PermissionsResponse> getPermissions() {
+        List<Permission> permissions = permissionRepository.findAll();
+        return permissions.stream().map(permissionMapper::toDTO).toList();
     }
 
 

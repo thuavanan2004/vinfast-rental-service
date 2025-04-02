@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AdminDetailResponse {
     private Long id;
+    private Long roleId;
+    private String roleName;
     private String username;
     private String email;
     private String fullName;

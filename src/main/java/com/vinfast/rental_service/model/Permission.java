@@ -1,17 +1,16 @@
 package com.vinfast.rental_service.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "permissions")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +33,6 @@ public class Permission {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RolePermission> rolePermissions;
+    @ManyToMany(mappedBy = "permissions")
+    private Set<Role> roles = new HashSet<>();
 }

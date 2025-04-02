@@ -49,16 +49,4 @@ public class AdminAuthenticationController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Logout admin failed");
         }
     }
-
-    @Operation(summary = "Get account admin")
-    @GetMapping("/me/{id}")
-    public ResponseData<?> getAdmin(@PathVariable Long id) {
-        log.info("Get info for account admin");
-        try{
-            return new ResponseData<>(HttpStatus.OK.value(), "Get info for account admin successfully", adminService.getAdminById(id));
-        } catch (Exception e) {
-            log.info("errorMessage={}", e.getMessage(), e.getCause());
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get info for account admin failed");
-        }
-    }
 }
