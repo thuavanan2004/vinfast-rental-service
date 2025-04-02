@@ -1,10 +1,7 @@
 package com.vinfast.rental_service.service;
 
 
-import com.vinfast.rental_service.dtos.request.AdminCreateRequest;
-import com.vinfast.rental_service.dtos.request.AdminLoginRequest;
-import com.vinfast.rental_service.dtos.request.AdminUpdateRequest;
-import com.vinfast.rental_service.dtos.request.RoleRequest;
+import com.vinfast.rental_service.dtos.request.*;
 import com.vinfast.rental_service.dtos.response.AdminAuthResponse;
 import com.vinfast.rental_service.dtos.response.AdminDetailResponse;
 import com.vinfast.rental_service.dtos.response.PermissionsResponse;
@@ -31,4 +28,6 @@ public interface AdminService {
     List<PermissionsResponse> getPermissionsByRoleId(long roleId);
 
     List<PermissionsResponse> getPermissions();
+
+    void assignPermissionsToRole(long roleId, AssignPermissionsRequest request);
 }

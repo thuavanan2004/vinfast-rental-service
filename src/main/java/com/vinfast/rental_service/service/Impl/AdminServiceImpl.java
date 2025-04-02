@@ -1,10 +1,7 @@
 package com.vinfast.rental_service.service.Impl;
 
 
-import com.vinfast.rental_service.dtos.request.AdminCreateRequest;
-import com.vinfast.rental_service.dtos.request.AdminLoginRequest;
-import com.vinfast.rental_service.dtos.request.AdminUpdateRequest;
-import com.vinfast.rental_service.dtos.request.RoleRequest;
+import com.vinfast.rental_service.dtos.request.*;
 import com.vinfast.rental_service.dtos.response.*;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
@@ -32,7 +29,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
@@ -166,6 +165,21 @@ public class AdminServiceImpl implements AdminService {
     public List<PermissionsResponse> getPermissions() {
         List<Permission> permissions = permissionRepository.findAll();
         return permissions.stream().map(permissionMapper::toDTO).toList();
+    }
+
+    @Override
+    public void assignPermissionsToRole(long roleId, AssignPermissionsRequest request) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+
+        List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
+
+        Set<Permission> permissionSet = new HashSet<>(permissions);
+        role.setPermissions(permissionSet);
+
+        roleRepository.save(role);
+
+        log.info("Permissions assigned successfully");
     }
 
 

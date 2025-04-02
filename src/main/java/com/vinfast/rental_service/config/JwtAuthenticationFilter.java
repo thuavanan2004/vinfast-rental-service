@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -17,6 +19,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -36,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
-        if (requestURI.startsWith("/api/admin/auth/login")) {
+        if (requestURI.startsWith("/api/admin/auth/**")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,6 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
             String username = jwtService.extractUserName(jwt, ACCESS_TOKEN);
             UserDetails userDetails = adminDetailsService.loadUserByUsername(username);
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
             if (StringUtils.hasText(jwt) && jwtService.isTokenValid(jwt, ACCESS_TOKEN, userDetails)) {
                 setAuthentication(userDetails, request);
             }

@@ -4,12 +4,14 @@ import com.vinfast.rental_service.enums.AdminRole;
 import com.vinfast.rental_service.enums.AdminStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Entity
 @Table(name = "admins")
 @Getter
@@ -76,25 +79,24 @@ public class Admin implements UserDetails, Serializable {
 
 
     @Override
+    @Transactional
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-//        if (role != null) {
-//
-//            if (role.getRolePermissions() != null) {
-//                for (RolePermission rolePermission : role.getRolePermissions()) {
-//                    if (rolePermission.getPermission() != null) {
-//                        authorities.add(new SimpleGrantedAuthority(rolePermission.getPermission().getCode()));
-//                    }
-//                }
-//            }
-//
-//            if (role.getName() != null) {
-//                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
-//            }
-//        } else {
-//            System.out.println("Admin has no role assigned!");
-//        }
+        if (role != null) {
+            if (role.getPermissions() != null) {
+                for (Permission permission : role.getPermissions()) {
+                    if (permission != null) {
+                        authorities.add(new SimpleGrantedAuthority(permission.getCode()));
+                    }
+                }
+            }
 
+            if (role.getName() != null) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+            }
+        } else {
+            System.out.println("Admin has no role assigned!");
+        }
         return authorities;
     }
 

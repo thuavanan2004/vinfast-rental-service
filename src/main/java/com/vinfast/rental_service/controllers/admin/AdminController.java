@@ -3,6 +3,7 @@ package com.vinfast.rental_service.controllers.admin;
 
 import com.vinfast.rental_service.dtos.request.AdminCreateRequest;
 import com.vinfast.rental_service.dtos.request.AdminUpdateRequest;
+import com.vinfast.rental_service.dtos.request.AssignPermissionsRequest;
 import com.vinfast.rental_service.dtos.request.RoleRequest;
 import com.vinfast.rental_service.dtos.response.ResponseData;
 import com.vinfast.rental_service.dtos.response.ResponseError;
@@ -110,6 +111,20 @@ public class AdminController {
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get list of permissions by role failed");
+        }
+    }
+
+    @Operation(summary = "Permissions assigned")
+    @PostMapping("/permissions/{roleId}")
+    public ResponseData<?> assignPermissionsToRole(@PathVariable @Min(1) long roleId,
+                                                   @RequestBody @Valid AssignPermissionsRequest request){
+        log.info("Permissions assigned");
+        try{
+            adminService.assignPermissionsToRole(roleId, request);
+            return new ResponseData<>(HttpStatus.OK.value(),"Permissions assigned successfully");
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Permissions assigned failed");
         }
     }
 }
