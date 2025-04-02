@@ -51,7 +51,7 @@ public class Admin implements UserDetails, Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('active', 'inactive', 'suspended') DEFAULT 'active'")
-    private AdminStatus status;
+    private AdminStatus status = AdminStatus.active;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
