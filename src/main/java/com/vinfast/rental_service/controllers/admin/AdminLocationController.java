@@ -16,6 +16,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class AdminLocationController {
 
     private final LocationService locationService;
 
+    @PreAuthorize("hasAuthority('pickup_location:read')")
     @Operation(summary = "Get location by id")
     @GetMapping("/{locationId}")
     public ResponseData<?> getLocationById(@PathVariable @Min (1) long locationId){
@@ -41,6 +43,7 @@ public class AdminLocationController {
         }
     }
 
+    @PreAuthorize("hasAuthority('pickup_location:create')")
     @Operation(summary = "Create new pickup location")
     @PostMapping
     public ResponseData<?> createLocation(@RequestBody @Valid LocationRequest request){
@@ -54,6 +57,7 @@ public class AdminLocationController {
         }
     }
 
+    @PreAuthorize("hasAuthority('pickup_location:update')")
     @Operation(summary = "Update pickup location")
     @PutMapping("/{locationId}")
     public ResponseData<?> updateLocation(@PathVariable @Min (1) long locationId, @RequestBody @Valid LocationRequest request){
@@ -70,6 +74,7 @@ public class AdminLocationController {
         }
     }
 
+    @PreAuthorize("hasAuthority('pickup_location:update')")
     @Operation(summary = "Change status location")
     @PatchMapping("/status/{locationId}")
     public ResponseData<?> changeStatus(@PathVariable @Min (1) long locationId,

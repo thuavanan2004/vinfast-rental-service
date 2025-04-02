@@ -19,6 +19,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,7 @@ public class AdminCarController {
 
     private final CarService carService;
 
+    @PreAuthorize("hasAuthority('car:read')")
     @Operation(summary = "Get list car by car model id")
     @GetMapping("/car-models/{carModelId}")
     public ResponseData<?> getListCarByCarModel(@PathVariable @Min(1) long carModelId, Pageable pageable){
@@ -46,6 +48,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('car:read')")
     @Operation(summary = "Get car to the system")
     @GetMapping("/{carId}")
     public ResponseData<?> getInfoCar(@PathVariable @Min(1) long carId){
@@ -58,6 +61,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('car:create')")
     @Operation(summary = "Add new car to the system")
     @PostMapping("/{carModelId}")
     public ResponseData<?> addNewCar(@PathVariable @Min(1) long carModelId, @Valid @RequestBody CarCreateRequest request){
@@ -77,6 +81,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('car:update')")
     @Operation(summary = "Update car status")
     @PutMapping("/status/{carId}")
     public ResponseData<?> updateCarStatus(@PathVariable @Min(1) long carId,
@@ -97,6 +102,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('car:update')")
     @Operation(summary = "Update info car")
     @PutMapping("/{carId}")
     public ResponseData<?> updateCar(@PathVariable @Min(1) long carId,
@@ -117,6 +123,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('maintenance:create')")
     @Operation(summary = "Create maintenance for car")
     @PostMapping("/{carId}/maintenance")
     public ResponseData<?> createMaintenance(@PathVariable @Min(1) long carId,
@@ -134,6 +141,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('maintenance:read')")
     @Operation(summary = "Get maintenance-report by maintenanceId")
     @GetMapping("/{maintenanceId}/maintenance-report")
     public ResponseData<?> maintenanceReport(@PathVariable @Min(1) long maintenanceId){
@@ -150,6 +158,7 @@ public class AdminCarController {
         }
     }
 
+    @PreAuthorize("hasAuthority('maintenance:read')")
     @Operation(summary = "Get list maintenance-report by carId")
     @GetMapping("/maintenance-report/list/{carId}")
     public ResponseData<?> maintenanceReportsByCarId(@PathVariable @Min(1) long carId, Pageable pageable){

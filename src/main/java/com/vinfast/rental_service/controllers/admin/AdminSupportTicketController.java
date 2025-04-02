@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminSupportTicketController {
     private final SupportTicketService supportTicketService;
 
-
+    @PreAuthorize("hasAuthority('ticket:read')")
     @Operation(summary = "Get list support ticket")
     @GetMapping
     public ResponseData<?> getAll(Pageable pageable){
@@ -38,6 +39,7 @@ public class AdminSupportTicketController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ticket:read')")
     @Operation(summary = "Get support ticket by id")
     @GetMapping("/{supportTicketId}")
     public ResponseData<?> getSupportTicketById(@PathVariable @Min(1) long supportTicketId){
@@ -50,6 +52,7 @@ public class AdminSupportTicketController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ticket:update')")
     @Operation(summary = "Processing assignment")
     @PutMapping("/{supportTicketId}/assign/{adminId}")
     public ResponseData<?> assign(@PathVariable @Min(1) long supportTicketId, @PathVariable @Min(1) long adminId){
@@ -63,6 +66,8 @@ public class AdminSupportTicketController {
         }
     }
 
+
+    @PreAuthorize("hasAuthority('ticket:resolve')")
     @Operation(summary = "Change status support ticket")
     @PatchMapping("/{supportTicketId}/resolve")
     public ResponseData<?> resolve(@PathVariable @Min(1) long supportTicketId,
@@ -77,6 +82,7 @@ public class AdminSupportTicketController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ticket:update')")
     @Operation(summary = "Reply support ticket")
     @PostMapping("/{supportTicketId}/reply")
     public ResponseData<?> reply(@PathVariable @Min(1) long supportTicketId){

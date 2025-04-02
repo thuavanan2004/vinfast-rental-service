@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class AdminPromotionController {
 
     private final PromotionService promotionService;
 
+    @PreAuthorize("hasAuthority('promotion:create')")
     @Operation(summary = "Create new promotion")
     @PostMapping
     public ResponseData<?> createPromotion(@RequestBody @Valid PromotionRequest request){
@@ -43,6 +45,7 @@ public class AdminPromotionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('promotion:read')")
     @Operation(summary = "Get promotion by id")
     @GetMapping("/{promotionId}")
     public ResponseData<?> getPromotionById(@PathVariable @Min(1) long promotionId){
@@ -56,6 +59,7 @@ public class AdminPromotionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('promotion:read')")
     @Operation(summary = "Get list promotion")
     @GetMapping
     public ResponseData<?> getAll(@RequestParam(required = false) @EnumPattern(name="status", regexp = "active|inactive|expired") PromotionStatus status,
@@ -70,6 +74,7 @@ public class AdminPromotionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('promotion:update')")
     @Operation(summary = "Update promotion")
     @PatchMapping("/{promotionId}")
     public ResponseData<?> updatePromotion(@PathVariable @Min(1) long promotionId, @RequestBody @Valid PromotionRequest request){

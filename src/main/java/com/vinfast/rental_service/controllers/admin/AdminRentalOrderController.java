@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ public class AdminRentalOrderController {
 
     private final RentalOrderService rentalOrderService;
 
+    @PreAuthorize("hasAuthority('rental_order:read')")
     @Operation(summary = "Get list rental orders")
     @GetMapping
     public ResponseData<?> getAll(Pageable pageable,
@@ -43,6 +45,7 @@ public class AdminRentalOrderController {
         }
     }
 
+    @PreAuthorize("hasAuthority('rental_order:update')")
     @Operation(summary = "Update rental order status")
     @PatchMapping("/{orderId}/status")
     public ResponseData<?> updateOrderStatus(
@@ -59,6 +62,7 @@ public class AdminRentalOrderController {
         }
     }
 
+    @PreAuthorize("hasAuthority('rental_order:create')")
     @Operation(summary = "Add special request for order")
     @PostMapping("/{orderId}/special-request")
     public ResponseData<?> addSpecialRequest(

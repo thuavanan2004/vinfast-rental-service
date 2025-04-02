@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final AdminService adminService;
 
+    @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "Get account admin")
     @GetMapping("/me/{id}")
     public ResponseData<?> getAdmin(@PathVariable Long id) {
@@ -39,6 +41,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "Create account admin")
     @PostMapping("/create")
     public ResponseData<?> create(@Valid @RequestBody AdminCreateRequest request){
@@ -52,6 +55,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "Update account admin")
     @PutMapping("/update/{adminId}")
     public ResponseData<?> update(@Valid @RequestBody AdminUpdateRequest request, @PathVariable @Min(1) long adminId){
@@ -65,6 +69,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('role:read')")
     @Operation(summary = "Get all role")
     @GetMapping("/roles")
     public ResponseData<?> getRoles(){
@@ -77,6 +82,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('role:create')")
     @Operation(summary = "Create role")
     @PostMapping("/roles/create")
     public ResponseData<?> createRole(@Valid @RequestBody RoleRequest request){
@@ -90,6 +96,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('role:read')")
     @Operation(summary = "Get all permissions")
     @GetMapping("/permissions")
     public ResponseData<?> getPermissions(){
@@ -102,6 +109,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('role:read')")
     @Operation(summary = "Get list of permissions by role")
     @GetMapping("/permissions/{roleId}")
     public ResponseData<?> getPermissionsByRoleId(@PathVariable @Min(1) long roleId){
@@ -114,6 +122,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAuthority('permission:assign')")
     @Operation(summary = "Permissions assigned")
     @PostMapping("/permissions/{roleId}")
     public ResponseData<?> assignPermissionsToRole(@PathVariable @Min(1) long roleId,

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class AdminInsuranceOptionController {
 
     private final InsuranceOptionService insuranceOptionService;
 
+    @PreAuthorize("hasAuthority('insurance:read')")
     @Operation(summary = "Get insurance option by id")
     @GetMapping("/{id}")
     public ResponseData<?> getInsuranceOptionById(@PathVariable @Min(1) long id){
@@ -42,6 +44,7 @@ public class AdminInsuranceOptionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('insurance:create')")
     @Operation(summary = "Create insurance option")
     @PostMapping
     public ResponseData<?> createInsuranceOption(@RequestBody @Valid InsuranceOptionRequest request){
@@ -55,6 +58,7 @@ public class AdminInsuranceOptionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('insurance:update')")
     @Operation(summary = "Update insurance option")
     @PutMapping("/{id}")
     public ResponseData<?> updateInsuranceOption(@PathVariable @Min(1) long id, @RequestBody @Valid InsuranceOptionRequest request){
@@ -68,6 +72,7 @@ public class AdminInsuranceOptionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('insurance:delete')")
     @Operation(summary = "Delete insurance option")
     @DeleteMapping("/{id}")
     public ResponseData<?> deleteInsuranceOption(@PathVariable @Min(1) long id){

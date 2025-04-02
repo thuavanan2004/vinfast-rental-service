@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class AdminCarModelController {
 
     private final CarModelService carModelService;
 
+    @PreAuthorize("hasAuthority('car_model:create')")
     @Operation(summary = "Create car-model")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseData<?> createCarModel(@Valid @ModelAttribute CarModelCreateRequest request){
@@ -42,6 +44,7 @@ public class AdminCarModelController {
         }
     }
 
+    @PreAuthorize("hasAuthority('car_model:update')")
     @Operation(summary = "Update car-model")
     @PutMapping("/update/{carModelId}")
     public ResponseData<?> updateCarModel(@PathVariable long carModelId, @Valid @RequestBody CarModelUpdateRequest request){

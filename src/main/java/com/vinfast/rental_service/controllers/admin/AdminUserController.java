@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,6 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class AdminUserController {
     private final UserService userService;
 
+    @PreAuthorize("hasAuthority('user:read')")
     @Operation(summary = "Get list users for admin management")
     @GetMapping
     public ResponseData<?> getAll(Pageable pageable, @RequestParam(required = false) String[] users){
@@ -37,6 +39,7 @@ public class AdminUserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('user:read')")
     @Operation(summary = "Get info detail user")
     @GetMapping("/{userId}")
     public ResponseData<?> getUser(@PathVariable long userId){
@@ -49,6 +52,7 @@ public class AdminUserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('user:update')")
     @Operation(summary = "Change status for user (active|inactive|suspended)")
     @PutMapping("/status/{userId}")
     public ResponseData<?> changeStatus(@PathVariable long userId, @RequestParam @EnumPattern(name="status", regexp = "active|banned|suspended") UserStatus status){
@@ -62,6 +66,7 @@ public class AdminUserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('user:read')")
     @Operation(summary = "Get user's rental history")
     @GetMapping("/bookings/{userId}")
     public ResponseData<?> rentalHistory(@PathVariable long userId,
