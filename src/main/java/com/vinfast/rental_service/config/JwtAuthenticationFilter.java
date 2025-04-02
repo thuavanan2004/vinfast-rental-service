@@ -40,9 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+
         String requestURI = request.getRequestURI();
 
-        if (requestURI.startsWith("/api/admin/auth/**")) {
+        if (requestURI.startsWith("/api/admin/auth") ||
+                requestURI.startsWith("/api/public/") ||
+                requestURI.startsWith("/swagger-ui/") ||
+                requestURI.startsWith("/v3/api-docs/")) {
             filterChain.doFilter(request, response);
             return;
         }
