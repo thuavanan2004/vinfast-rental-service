@@ -49,24 +49,26 @@ public class DashboardController {
                 throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
             }
 
-            return new ResponseData<>(HttpStatus.OK.value(),"Get statistics of orders based on their status.", dashboardService.getRentalOrder(period));
+            return new ResponseData<>(HttpStatus.OK.value(),"Get statistics of orders statistics by day, month, and year success", dashboardService.getRentalOrder(period));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get statistics of orders based on their status: " + e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get statistics of orders statistics by day, month, and year failed: " + e.getMessage());
         }
     }
 
-    @Operation(summary = "Get revenue statistics by day, month, and year.")
-    @GetMapping("/revenue")
-    public ResponseData<?> revenue(){
-        log.info("Get revenue statistics by day, month, and year..");
+    @Operation(summary = "Get customer statistics by day, month, and year.")
+    @GetMapping("/customers")
+    public ResponseData<?> getCustomers(@RequestParam(defaultValue = "monthly") String period){
+        log.info("Get customer statistics by day, month, and year..");
         try{
-            return new ResponseData<>(HttpStatus.OK.value(),
-                    "Get revenue statistics by day, month, and year.."
-            );
+            if (!List.of("daily", "monthly", "yearly").contains(period.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
+            }
+
+            return new ResponseData<>(HttpStatus.OK.value(), "Get customer statistics by day, month, and year..", dashboardService.getCustomerStats(period));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get revenue statistics by day, month, and year.: " + e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get customer statistics by day, month, and year.: " + e.getMessage());
         }
     }
 }
