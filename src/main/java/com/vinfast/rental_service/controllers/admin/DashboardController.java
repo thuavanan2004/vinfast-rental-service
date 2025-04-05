@@ -14,18 +14,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Tag(name = "Dashboard")
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/admin/dashboard")
+@RequestMapping("/api/admin/statistics")
 @RequiredArgsConstructor
 public class DashboardController {
     private final DashboardService dashboardService;
 
-    @Operation(summary = "Get an overview of total orders, revenue, pending and completed orders.")
+    @Operation(summary = "get rental order statistics by day, month, and year.")
     @GetMapping("/overview")
     public ResponseData<?> overview(){
         log.info("Fetching overview statistics for dashboard...");
@@ -37,14 +40,16 @@ public class DashboardController {
         }
     }
 
-    @Operation(summary = "Get statistics of orders based on their status.")
-    @GetMapping("/orders")
-    public ResponseData<?> orders(){
-        log.info("Get statistics of orders based on their status.");
+    @Operation(summary = "Get rental order statistics by day, month, and year.")
+    @GetMapping("/rental-orders")
+    public ResponseData<?> getRentalOrder(@RequestParam(defaultValue = "monthly") String period){
+        log.info("get rental order statistics by day, month, and year..");
         try{
-            return new ResponseData<>(HttpStatus.OK.value(),
-                    "Get statistics of orders based on their status."
-            );
+            if (!List.of("daily", "monthly", "yearly").contains(period.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
+            }
+
+            return new ResponseData<>(HttpStatus.OK.value(),"Get statistics of orders based on their status.", dashboardService.getRentalOrder(period));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get statistics of orders based on their status: " + e.getMessage());
