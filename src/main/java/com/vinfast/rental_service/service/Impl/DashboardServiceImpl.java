@@ -4,6 +4,7 @@ import com.vinfast.rental_service.dtos.response.CustomerStatsResponse;
 import com.vinfast.rental_service.dtos.response.DashboardOverviewResponse;
 import com.vinfast.rental_service.dtos.response.RentalOrderStatsResponse;
 import com.vinfast.rental_service.enums.RentalOrderStatus;
+import com.vinfast.rental_service.enums.TimeGranularity;
 import com.vinfast.rental_service.repository.RentalOrderRepository;
 import com.vinfast.rental_service.repository.UserRepository;
 import com.vinfast.rental_service.service.DashboardService;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 
 
 @Service
@@ -39,8 +41,9 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public RentalOrderStatsResponse getRentalOrder(String period) {
-        PeriodInfo periodInfo = resolvePeriod(period);
+    public RentalOrderStatsResponse getRentalOrder(String period, String granularity) {
+        TimeGranularity granularityEnum = parseGranularity(granularity);
+        PeriodInfo periodInfo = resolvePeriod(period, granularityEnum);
 
         List<Object[]> currentStats = rentalOrderRepository.findPeriodStats(
                 periodInfo.startDate(),
@@ -58,8 +61,9 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public CustomerStatsResponse getCustomerStats(String period) {
-        PeriodInfo periodInfo = resolvePeriod(period);
+    public CustomerStatsResponse getCustomerStats(String period, String granularity) {
+        TimeGranularity timeGranularity = parseGranularity(granularity);
+        PeriodInfo periodInfo = resolvePeriod(period, timeGranularity);
 
         List<Object[]> currentStats = userRepository.findPeriodStats(
                 periodInfo.startDate(),
@@ -82,28 +86,67 @@ public class DashboardServiceImpl implements DashboardService {
             String dateFormat
     ) {}
 
-    private PeriodInfo resolvePeriod(String period) {
+    private TimeGranularity parseGranularity(String granularity) {
+        try {
+            return TimeGranularity.valueOf(granularity.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return TimeGranularity.AUTO;
+        }
+    }
+
+    private PeriodInfo resolvePeriod(String period, TimeGranularity granularity) {
         return switch (period.toLowerCase()) {
-            case "daily" -> new PeriodInfo(
-                    LocalDateTime.now().minusDays(1),
-                    ChronoUnit.DAYS,
-                    1,
-                    "%Y-%m-%d"
-            );
-            case "monthly" -> new PeriodInfo(
-                    LocalDateTime.now().minusMonths(1),
-                    ChronoUnit.MONTHS,
-                    1,
-                    "%Y-%m"
-            );
-            case "yearly" -> new PeriodInfo(
-                    LocalDateTime.now().minusYears(1),
-                    ChronoUnit.YEARS,
-                    1,
-                    "%Y"
-            );
+            case "daily" -> resolveDailyPeriod(granularity);
+            case "monthly" -> resolveMonthlyPeriod(granularity);
+            case "yearly" -> resolveYearlyPeriod(granularity);
             default -> throw new IllegalArgumentException("Invalid period");
         };
+    }
+
+    private PeriodInfo resolveDailyPeriod(TimeGranularity granularity) {
+        String dateFormat = switch (granularity) {
+            case SECOND -> "%Y-%m-%d %H:%i:%S";
+            case MINUTE -> "%Y-%m-%d %H:%i";
+            case HOUR -> "%Y-%m-%d %H";
+            default -> "%Y-%m-%d";
+        };
+
+        return new PeriodInfo(
+                LocalDateTime.now().minusDays(1),
+                ChronoUnit.DAYS,
+                1,
+                dateFormat
+        );
+    }
+
+    private PeriodInfo resolveMonthlyPeriod(TimeGranularity granularity) {
+        String dateFormat = switch (granularity) {
+            case DAY -> "%Y-%m-%d";
+            case HOUR -> "%Y-%m-%d %H";
+            default -> "%Y-%m";
+        };
+
+        return new PeriodInfo(
+                LocalDateTime.now().minusMonths(1),
+                ChronoUnit.MONTHS,
+                1,
+                dateFormat
+        );
+    }
+
+    private PeriodInfo resolveYearlyPeriod(TimeGranularity granularity){
+        String dateFormat = switch (granularity) {
+            case MONTH -> "%Y-%m";
+            case DAY -> "%Y-%m-%d";
+            default -> "%Y";
+        };
+
+        return new PeriodInfo(
+                LocalDateTime.now().minusYears(1),
+                ChronoUnit.YEARS,
+                1,
+                dateFormat);
+
     }
     private RentalOrderStatsResponse buildResponse(List<Object[]> current,
                                                    List<Object[]> previous,

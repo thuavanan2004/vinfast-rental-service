@@ -7,7 +7,7 @@ import com.vinfast.rental_service.dtos.response.RentalOrderStatsResponse;
 public interface DashboardService {
     DashboardOverviewResponse overview();
 
-    RentalOrderStatsResponse getRentalOrder(String period);
+    RentalOrderStatsResponse getRentalOrder(String period, String granularity);
 
-    CustomerStatsResponse getCustomerStats(String period);
+    CustomerStatsResponse getCustomerStats(String period, String granularity);
 }

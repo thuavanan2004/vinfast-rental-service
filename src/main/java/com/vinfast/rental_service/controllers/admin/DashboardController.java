@@ -42,14 +42,21 @@ public class DashboardController {
 
     @Operation(summary = "Get rental order statistics by day, month, and year.")
     @GetMapping("/rental-orders")
-    public ResponseData<?> getRentalOrder(@RequestParam(defaultValue = "monthly") String period){
+    public ResponseData<?> getRentalOrder(@RequestParam(defaultValue = "monthly") String period,
+                                          @RequestParam(defaultValue = "auto") String granularity){
         log.info("get rental order statistics by day, month, and year..");
         try{
             if (!List.of("daily", "monthly", "yearly").contains(period.toLowerCase())) {
                 throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
             }
 
-            return new ResponseData<>(HttpStatus.OK.value(),"Get statistics of orders statistics by day, month, and year success", dashboardService.getRentalOrder(period));
+            if (!List.of( "second", "minute", "hour", "day", "month", "year").contains(granularity.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
+            }
+
+            return new ResponseData<>(HttpStatus.OK.value(),
+                    "Get statistics of orders statistics by day, month, and year success",
+                    dashboardService.getRentalOrder(period, granularity));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get statistics of orders statistics by day, month, and year failed: " + e.getMessage());
@@ -58,14 +65,17 @@ public class DashboardController {
 
     @Operation(summary = "Get customer statistics by day, month, and year.")
     @GetMapping("/customers")
-    public ResponseData<?> getCustomers(@RequestParam(defaultValue = "monthly") String period){
+    public ResponseData<?> getCustomers(@RequestParam(defaultValue = "monthly") String period,
+                                        @RequestParam(defaultValue = "auto") String granularity){
         log.info("Get customer statistics by day, month, and year..");
         try{
             if (!List.of("daily", "monthly", "yearly").contains(period.toLowerCase())) {
                 throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
             }
 
-            return new ResponseData<>(HttpStatus.OK.value(), "Get customer statistics by day, month, and year..", dashboardService.getCustomerStats(period));
+            return new ResponseData<>(HttpStatus.OK.value(),
+                    "Get customer statistics by day, month, and year..",
+                    dashboardService.getCustomerStats(period, granularity));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get customer statistics by day, month, and year.: " + e.getMessage());

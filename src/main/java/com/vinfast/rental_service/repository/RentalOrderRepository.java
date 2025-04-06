@@ -31,7 +31,7 @@ public interface RentalOrderRepository extends JpaRepository<RentalOrder, Long>,
     WHERE o.status = 'completed'
       AND o.created_at BETWEEN :start AND :end
     GROUP BY period
-    ORDER BY period ASC
+    ORDER BY period ASC 
     """, nativeQuery = true)
     List<Object[]> findPeriodStats(
             @Param("start") LocalDateTime start,
