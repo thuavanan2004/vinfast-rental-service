@@ -1,10 +1,12 @@
 package com.vinfast.rental_service.service.Impl;
 
+import com.vinfast.rental_service.dtos.response.CarStatsResponse;
 import com.vinfast.rental_service.dtos.response.CustomerStatsResponse;
 import com.vinfast.rental_service.dtos.response.DashboardOverviewResponse;
 import com.vinfast.rental_service.dtos.response.RentalOrderStatsResponse;
 import com.vinfast.rental_service.enums.RentalOrderStatus;
 import com.vinfast.rental_service.enums.TimeGranularity;
+import com.vinfast.rental_service.repository.CarRepository;
 import com.vinfast.rental_service.repository.RentalOrderRepository;
 import com.vinfast.rental_service.repository.UserRepository;
 import com.vinfast.rental_service.service.DashboardService;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
     private final RentalOrderRepository rentalOrderRepository;
+
+    private final CarRepository carRepository;
 
     private final UserRepository userRepository;
 
@@ -77,6 +81,30 @@ public class DashboardServiceImpl implements DashboardService {
                 periodInfo.dateFormat()
         );
         return buildCustomerResponse(currentStats, previousStats, period);
+    }
+
+    @Override
+    public CarStatsResponse getCarsStats(String period) {
+        PeriodInfo periodInfo = resolvePeriod(period, TimeGranularity.AUTO);
+
+        List<Object[]> objects = carRepository.findPeriodStats(
+                periodInfo.startDate(),
+                LocalDateTime.now(),
+                periodInfo.dateFormat()
+        );
+
+        List<CarStatsResponse.CarRentalMost> list = objects.stream().map(Object -> CarStatsResponse.CarRentalMost.builder()
+            .carId((Integer) Object[1])
+            .licensePlate(Object[2].toString())
+            .carImage(Object[3].toString())
+            .carModelName(Object[4].toString())
+            .rentalCount((Long)Object[5])
+            .totalRevenue(new BigDecimal(Object[6].toString())).build()).collect(Collectors.toList());
+
+        return CarStatsResponse.builder()
+                .period(period)
+                .carRentalMostList(list)
+                .build();
     }
 
     private record PeriodInfo(
@@ -199,7 +227,6 @@ public class DashboardServiceImpl implements DashboardService {
                 .stats(stats)
                 .build();
     }
-
 
     private RentalOrderStatsResponse.RevenueStat calculateRevenueStat(BigDecimal current, BigDecimal previous) {
         BigDecimal percentage = calculatePercentageChange(previous, current);

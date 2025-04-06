@@ -27,7 +27,7 @@ public interface RentalOrderRepository extends JpaRepository<RentalOrder, Long>,
         DATE_FORMAT(o.created_at, :dateFormat) AS period,
         COALESCE(SUM(o.total_price), 0) AS totalSales,
         COUNT(o.id) AS orderCount
-    FROM rental_orders o
+    FROM rental_orders o    
     WHERE o.status = 'completed'
       AND o.created_at BETWEEN :start AND :end
     GROUP BY period
@@ -38,4 +38,5 @@ public interface RentalOrderRepository extends JpaRepository<RentalOrder, Long>,
             @Param("end") LocalDateTime end,
             @Param("dateFormat") String dateFormat
     );
+
 }

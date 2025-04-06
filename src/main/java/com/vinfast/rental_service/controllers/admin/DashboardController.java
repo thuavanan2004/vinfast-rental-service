@@ -81,4 +81,22 @@ public class DashboardController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get customer statistics by day, month, and year.: " + e.getMessage());
         }
     }
+
+    @Operation(summary = "Get cars statistics by day, month, and year.")
+    @GetMapping("/cars")
+    public ResponseData<?> getCars(@RequestParam(defaultValue = "monthly") String period){
+        log.info("Get cars statistics by day, month, and year..");
+        try{
+            if (!List.of("daily", "monthly", "yearly").contains(period.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid period parameter. Use daily, monthly or yearly");
+            }
+
+            return new ResponseData<>(HttpStatus.OK.value(),
+                    "Get cars statistics by day, month, and year..",
+                    dashboardService.getCarsStats(period));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get cars statistics by day, month, and year.: " + e.getMessage());
+        }
+    }
 }
