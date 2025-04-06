@@ -9,6 +9,7 @@ import com.vinfast.rental_service.enums.TimeGranularity;
 import com.vinfast.rental_service.repository.CarRepository;
 import com.vinfast.rental_service.repository.RentalOrderRepository;
 import com.vinfast.rental_service.repository.UserRepository;
+import com.vinfast.rental_service.repository.projections.CarStatsProjection;
 import com.vinfast.rental_service.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -87,19 +88,21 @@ public class DashboardServiceImpl implements DashboardService {
     public CarStatsResponse getCarsStats(String period) {
         PeriodInfo periodInfo = resolvePeriod(period, TimeGranularity.AUTO);
 
-        List<Object[]> objects = carRepository.findPeriodStats(
+        List<CarStatsProjection> projections = carRepository.findPeriodStats(
                 periodInfo.startDate(),
                 LocalDateTime.now(),
                 periodInfo.dateFormat()
         );
 
-        List<CarStatsResponse.CarRentalMost> list = objects.stream().map(Object -> CarStatsResponse.CarRentalMost.builder()
-            .carId((Integer) Object[1])
-            .licensePlate(Object[2].toString())
-            .carImage(Object[3].toString())
-            .carModelName(Object[4].toString())
-            .rentalCount((Long)Object[5])
-            .totalRevenue(new BigDecimal(Object[6].toString())).build()).collect(Collectors.toList());
+        List<CarStatsResponse.CarRentalMost> list = projections.stream()
+                .map(p -> CarStatsResponse.CarRentalMost.builder()
+                        .carId(p.getCarId())
+                        .licensePlate(p.getLicensePlate())
+                        .carImage(p.getCarImage())
+                        .carModelName(p.getCarModelName())
+                        .rentalCount(p.getRentalCount())
+                        .totalRevenue(p.getTotalRevenue())
+                        .build()).collect(Collectors.toList());
 
         return CarStatsResponse.builder()
                 .period(period)
