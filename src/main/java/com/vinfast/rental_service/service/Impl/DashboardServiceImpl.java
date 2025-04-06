@@ -4,8 +4,10 @@ import com.vinfast.rental_service.dtos.response.CarStatsResponse;
 import com.vinfast.rental_service.dtos.response.CustomerStatsResponse;
 import com.vinfast.rental_service.dtos.response.DashboardOverviewResponse;
 import com.vinfast.rental_service.dtos.response.RentalOrderStatsResponse;
+import com.vinfast.rental_service.enums.DateFormatPattern;
 import com.vinfast.rental_service.enums.RentalOrderStatus;
 import com.vinfast.rental_service.enums.TimeGranularity;
+import com.vinfast.rental_service.exceptions.InvalidPeriodException;
 import com.vinfast.rental_service.repository.CarRepository;
 import com.vinfast.rental_service.repository.RentalOrderRepository;
 import com.vinfast.rental_service.repository.UserRepository;
@@ -18,7 +20,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -127,58 +128,29 @@ public class DashboardServiceImpl implements DashboardService {
 
     private PeriodInfo resolvePeriod(String period, TimeGranularity granularity) {
         return switch (period.toLowerCase()) {
-            case "daily" -> resolveDailyPeriod(granularity);
-            case "monthly" -> resolveMonthlyPeriod(granularity);
-            case "yearly" -> resolveYearlyPeriod(granularity);
-            default -> throw new IllegalArgumentException("Invalid period");
+            case "daily" -> resolvePeriodConfig(granularity, ChronoUnit.DAYS, DateFormatPattern.DAILY);
+            case "monthly" -> resolvePeriodConfig(granularity, ChronoUnit.MONTHS, DateFormatPattern.MONTHLY);
+            case "yearly" -> resolvePeriodConfig(granularity, ChronoUnit.YEARS, DateFormatPattern.YEARLY);
+            default -> throw new InvalidPeriodException("Not valid: " + period);
         };
     }
 
-    private PeriodInfo resolveDailyPeriod(TimeGranularity granularity) {
+    private PeriodInfo resolvePeriodConfig(TimeGranularity granularity, ChronoUnit unit, DateFormatPattern defaultFormat) {
         String dateFormat = switch (granularity) {
-            case SECOND -> "%Y-%m-%d %H:%i:%S";
+            case HOUR -> "%Y-%m-%d %H";
             case MINUTE -> "%Y-%m-%d %H:%i";
-            case HOUR -> "%Y-%m-%d %H";
-            default -> "%Y-%m-%d";
+            case SECOND -> "%Y-%m-%d %H:%i:%S";
+            default -> defaultFormat.getPattern();
         };
 
         return new PeriodInfo(
-                LocalDateTime.now().minusDays(1),
-                ChronoUnit.DAYS,
+                LocalDateTime.now().minus(1, unit),
+                unit,
                 1,
                 dateFormat
         );
     }
 
-    private PeriodInfo resolveMonthlyPeriod(TimeGranularity granularity) {
-        String dateFormat = switch (granularity) {
-            case DAY -> "%Y-%m-%d";
-            case HOUR -> "%Y-%m-%d %H";
-            default -> "%Y-%m";
-        };
-
-        return new PeriodInfo(
-                LocalDateTime.now().minusMonths(1),
-                ChronoUnit.MONTHS,
-                1,
-                dateFormat
-        );
-    }
-
-    private PeriodInfo resolveYearlyPeriod(TimeGranularity granularity){
-        String dateFormat = switch (granularity) {
-            case MONTH -> "%Y-%m";
-            case DAY -> "%Y-%m-%d";
-            default -> "%Y";
-        };
-
-        return new PeriodInfo(
-                LocalDateTime.now().minusYears(1),
-                ChronoUnit.YEARS,
-                1,
-                dateFormat);
-
-    }
     private RentalOrderStatsResponse buildResponse(List<Object[]> current,
                                                    List<Object[]> previous,
                                                    String period) {
@@ -263,20 +235,30 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<String, BigDecimal[]> mapToPeriodStats(List<Object[]> stats) {
         return stats.stream().filter(Objects::nonNull).collect(Collectors.toMap(
-                row -> row[0] != null ? row[0].toString() : "N/A",
+                row -> safeToString(row[0]),
                 row -> new BigDecimal[] {
-                        row[1] != null ? new BigDecimal(row[1].toString()) : BigDecimal.ZERO,
-                        row[2] != null ? new BigDecimal(row[2].toString()) : BigDecimal.ZERO
+                        safeToBigDecimal(row[1]),
+                        safeToBigDecimal(row[2])
                 }
         ));
     }
 
     private Map<String, BigDecimal[]> mapCustomerToPeriodStats(List<Object[]> stats) {
         return stats.stream().filter(Objects::nonNull).collect(Collectors.toMap(
-                row -> row[0] != null ? row[0].toString() : "N/A",
-                row -> new BigDecimal[] {
-                        row[1] != null ? new BigDecimal(row[1].toString()) : BigDecimal.ZERO
-                }
+                row -> safeToString(row[0]),
+                row -> new BigDecimal[] {safeToBigDecimal(row[1])}
         ));
+    }
+
+    private String safeToString(Object obj){
+        return obj != null ? obj.toString() : "N/A";
+    }
+
+    private BigDecimal safeToBigDecimal(Object obj) {
+        try {
+            return new BigDecimal(obj.toString());
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
+        }
     }
 }
