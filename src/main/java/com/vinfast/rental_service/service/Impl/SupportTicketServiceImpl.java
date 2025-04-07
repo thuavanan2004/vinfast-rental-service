@@ -61,12 +61,17 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
 
+        User user = userRepository.findById(supportTicket.getUser().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User request support ticket not found with id: " + supportTicket.getUser().getId()));
+
         if(supportTicket.getAssignedAdmin() == admin){
             throw new InvalidDataException("The administrator has been assigned");
         }
         supportTicket.setAssignedAdmin(admin);
 
         supportTicketRepository.save(supportTicket);
+
+        emailService.sendAdminSupportInfo(user.getEmail(), admin.getFullName(), admin.getEmail(), admin.getPhone());
 
         log.info("Successful processing assignment");
     }
@@ -100,7 +105,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         User user = userRepository.findById(supportTicket.getUser().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User request support ticket not found with id: " + supportTicket.getUser().getId()));
 
-        emailService.sendResetPasswordEmail(user.getEmail());
+        emailService.replySupport(user.getEmail());
     }
 
 }
