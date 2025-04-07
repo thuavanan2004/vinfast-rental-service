@@ -14,4 +14,6 @@ public interface SupportTicketService {
     void resolve(long supportTicketId, TicketStatus status);
 
     SupportTicketResponse getSupportTicketById(long supportTicketId);
+
+    void reply(long supportTicketId);
 }

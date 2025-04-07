@@ -88,6 +88,7 @@ public class AdminSupportTicketController {
     public ResponseData<?> reply(@PathVariable @Min(1) long supportTicketId){
         log.info("Reply support ticket");
         try{
+            supportTicketService.reply(supportTicketId);
             return new ResponseData<>(HttpStatus.OK.value(), "Reply support ticket successfully");
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());

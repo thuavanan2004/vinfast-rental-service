@@ -8,8 +8,11 @@ import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.SupportTicketMapper;
 import com.vinfast.rental_service.model.Admin;
 import com.vinfast.rental_service.model.SupportTicket;
+import com.vinfast.rental_service.model.User;
 import com.vinfast.rental_service.repository.AdminRepository;
 import com.vinfast.rental_service.repository.SupportTicketRepository;
+import com.vinfast.rental_service.repository.UserRepository;
+import com.vinfast.rental_service.service.EmailService;
 import com.vinfast.rental_service.service.SupportTicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +30,11 @@ public class SupportTicketServiceImpl implements SupportTicketService {
 
     private final SupportTicketRepository supportTicketRepository;
 
+    private final UserRepository userRepository;
+
     private final AdminRepository adminRepository;
+
+    private final EmailService emailService;
 
     private final SupportTicketMapper supportTicketMapper;
 
@@ -84,6 +91,16 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         SupportTicket supportTicket = supportTicketRepository.findById(supportTicketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Support ticker not found with id: " + supportTicketId));
         return supportTicketMapper.toDTO(supportTicket);
+    }
+
+    @Override
+    public void reply(long supportTicketId) {
+        SupportTicket supportTicket = supportTicketRepository.findById(supportTicketId)
+                .orElseThrow(() -> new ResourceNotFoundException("Support ticker not found with id: " + supportTicketId));
+        User user = userRepository.findById(supportTicket.getUser().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User request support ticket not found with id: " + supportTicket.getUser().getId()));
+
+        emailService.sendResetPasswordEmail(user.getEmail());
     }
 
 }

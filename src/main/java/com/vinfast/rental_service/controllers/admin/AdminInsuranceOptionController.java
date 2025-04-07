@@ -31,23 +31,6 @@ public class AdminInsuranceOptionController {
     private final InsuranceOptionService insuranceOptionService;
 
     @PreAuthorize("hasAuthority('insurance:read')")
-    @Operation(summary = "Get list insurance option")
-    @GetMapping
-    public ResponseData<?> getListInsuranceOption(@RequestParam(required = false) @EnumPattern(name= "status", regexp = "active|inactive") InsuranceOptionStatus status,
-                                                  Pageable pageable){
-        log.info("Get list insurance option");
-        try{
-
-            return new ResponseData<>(HttpStatus.OK.value(),
-                    "Get list insurance option successfully",
-                    insuranceOptionService.getAll(status, pageable));
-        }catch (Exception e){
-            log.error("errorMessage={}", e.getMessage(), e.getCause());
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get list insurance option failed: " + e.getMessage());
-        }
-    }
-
-    @PreAuthorize("hasAuthority('insurance:read')")
     @Operation(summary = "Get insurance option by id")
     @GetMapping("/{id}")
     public ResponseData<?> getInsuranceOptionById(@PathVariable @Min(1) long id){
