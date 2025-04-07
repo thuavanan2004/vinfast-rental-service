@@ -137,6 +137,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private PeriodInfo resolvePeriodConfig(TimeGranularity granularity, ChronoUnit unit, DateFormatPattern defaultFormat) {
         String dateFormat = switch (granularity) {
+            case DAY -> "%Y-%m-%d";
             case HOUR -> "%Y-%m-%d %H";
             case MINUTE -> "%Y-%m-%d %H:%i";
             case SECOND -> "%Y-%m-%d %H:%i:%S";

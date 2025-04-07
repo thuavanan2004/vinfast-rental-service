@@ -25,14 +25,14 @@ public interface CarRepository extends JpaRepository<Car, Long> {
         SELECT
             c.id AS carId,
             c.license_plate AS licensePlate,
-            ci.image_url,
+            ci.image_url as carImage,
             cm.name AS carModelName,
             COUNT(ro.id) AS rentalCount,
             COALESCE(SUM(ro.total_price), 0) AS totalRevenue
         FROM cars c
         JOIN car_models cm ON c.car_model_id = cm.id
         LEFT JOIN car_images ci 
-            ON cm.id = ci.car_model_id AND ci.is_primary = TRUE
+            ON cm.id = ci.car_model_id AND ci.is_primary = 1
         LEFT JOIN rental_orders ro 
             ON c.id = ro.car_id 
             AND ro.status = 'completed' 

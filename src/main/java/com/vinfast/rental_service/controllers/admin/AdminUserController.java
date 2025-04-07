@@ -55,7 +55,8 @@ public class AdminUserController {
     @PreAuthorize("hasAuthority('user:update')")
     @Operation(summary = "Change status for user (active|inactive|suspended)")
     @PutMapping("/status/{userId}")
-    public ResponseData<?> changeStatus(@PathVariable long userId, @RequestParam @EnumPattern(name="status", regexp = "active|banned|suspended") UserStatus status){
+    public ResponseData<?> changeStatus(@PathVariable long userId,
+                                        @RequestParam @EnumPattern(name="status", regexp = "active|banned|suspended") UserStatus status){
         log.info("Change status for user");
         try{
             userService.changeStatus(userId, status);
