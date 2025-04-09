@@ -2,7 +2,9 @@ package com.vinfast.rental_service.controllers.client;
 
 
 import com.vinfast.rental_service.dtos.request.RegisterRequest;
+import com.vinfast.rental_service.dtos.request.ResetPasswordRequest;
 import com.vinfast.rental_service.dtos.request.SignInRequest;
+import com.vinfast.rental_service.dtos.request.VerifyOtpRequest;
 import com.vinfast.rental_service.dtos.response.ResponseData;
 import com.vinfast.rental_service.dtos.response.ResponseError;
 import com.vinfast.rental_service.service.AuthenticationService;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @Tag(name = "Client authentication")
 @Slf4j
@@ -79,6 +83,46 @@ public class ClientAuthenticationController {
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Register failed");
+        }
+    }
+
+    @Operation(summary = "Api forgot password")
+    @PostMapping("/forgot-password")
+    public ResponseData<?> forgotPassword(@Valid @RequestBody String email){
+        log.info("Forgot password");
+        try{
+            authenticationService.forgotPassword(email);
+
+            return new ResponseData<>(HttpStatus.OK.value(), "OTP has been sent to your email");
+        } catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Forgot password failed");
+        }
+    }
+
+    @Operation(summary = "Verify otp")
+    @PostMapping("/verify-otp")
+    public ResponseData<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        log.info("Verify otp");
+        try {
+            String accessToken = authenticationService.verifyOtp(request);
+            return new ResponseData<>(HttpStatus.OK.value(), "OTP verified successfully", Map.of("accessToken", accessToken));
+        } catch (Exception e) {
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Verify OTP failed");
+        }
+    }
+
+    @Operation(summary = "Reset password")
+    @PostMapping("/reset-password")
+    public ResponseData<?> resetPassword(HttpServletRequest request, @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        log.info("Reset password");
+        try {
+            authenticationService.resetPassword(request, resetPasswordRequest);
+            return new ResponseData<>(HttpStatus.OK.value(), "Reset password successfully");
+        } catch (Exception e) {
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Reset password failed");
         }
     }
 }

@@ -2,16 +2,18 @@ package com.vinfast.rental_service.service;
 
 
 import com.vinfast.rental_service.dtos.request.RegisterRequest;
+import com.vinfast.rental_service.dtos.request.ResetPasswordRequest;
 import com.vinfast.rental_service.dtos.request.SignInRequest;
+import com.vinfast.rental_service.dtos.request.VerifyOtpRequest;
 import com.vinfast.rental_service.dtos.response.TokenResponse;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
-import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.model.Token;
 import com.vinfast.rental_service.model.User;
 import com.vinfast.rental_service.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 import static com.vinfast.rental_service.enums.TokenType.REFRESH_TOKEN;
+import static com.vinfast.rental_service.utils.OTPUtil.generateOTP;
 
 @Slf4j
 @Service
@@ -32,7 +35,11 @@ public class AuthenticationService {
 
     private final UserService userService;
 
+    private final OtpService otpService;
+
     private final UserRepository userRepository;
+
+    private final EmailService emailService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -103,4 +110,45 @@ public class AuthenticationService {
         log.info("Register user successfully!");
     }
 
+    public void forgotPassword(String email){
+        userService.getUserByEmail(email);
+        String otp = otpService.generateAndSaveOTP(email);
+        emailService.sendOtp(email, otp);
+
+        log.info("Send otp forgot password successfully");
+    }
+
+    public String verifyOtp(VerifyOtpRequest request) {
+        boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtp());
+
+        if (!isValid) {
+            throw new RuntimeException("OTP is invalid or expired");
+        }
+
+        User user = userService.getUserByEmail(request.getEmail());
+        return jwtService.generateAccessToken(user);
+    }
+
+    public void resetPassword(HttpServletRequest request, ResetPasswordRequest resetPasswordRequest){
+        final String token = request.getHeader("token");
+        if(token == null || token.isEmpty()){
+            throw new InvalidDataException("Token must be not blank");
+        }
+
+        if(!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())){
+            throw new InvalidDataException("Password and confirm password not confirm");
+        }
+
+        String email = jwtService.extractUserName(token, ACCESS_TOKEN);
+        var user = userService.getUserByEmail(email);
+        boolean isValid = jwtService.isTokenValid(token, ACCESS_TOKEN, user);
+        if(!isValid){
+            throw new InvalidDataException("Token not valid");
+        }
+
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+        userRepository.save(user);
+
+        log.info("Reset password successfully");
+    }
 }

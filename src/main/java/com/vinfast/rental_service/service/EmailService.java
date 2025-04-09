@@ -52,4 +52,18 @@ public class EmailService {
         }
     }
 
+    public void sendOtp(String emailTo, String otp) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(emailTo);
+            helper.setSubject("Mã xác thực otp");
+            String content = "<p> OTP: " + otp + " </p>";
+            helper.setText(content, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Lỗi gửi email", e);
+        }
+    }
+
 }
