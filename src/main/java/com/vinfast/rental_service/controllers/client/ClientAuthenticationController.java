@@ -1,6 +1,7 @@
 package com.vinfast.rental_service.controllers.client;
 
 
+import com.vinfast.rental_service.dtos.request.RegisterRequest;
 import com.vinfast.rental_service.dtos.request.SignInRequest;
 import com.vinfast.rental_service.dtos.response.ResponseData;
 import com.vinfast.rental_service.dtos.response.ResponseError;
@@ -65,6 +66,19 @@ public class ClientAuthenticationController {
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Remove token failed");
+        }
+    }
+
+    @Operation(summary = "Api for register new user")
+    @PostMapping("/register")
+    public ResponseData<?> register(@Valid @RequestBody RegisterRequest request){
+        log.info("Register new user");
+        try{
+            authenticationService.register(request);
+            return new ResponseData<>(HttpStatus.OK.value(), "Register new user successfully");
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Register failed");
         }
     }
 }

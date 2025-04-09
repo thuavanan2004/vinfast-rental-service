@@ -1,17 +1,20 @@
 package com.vinfast.rental_service.service;
 
 
+import com.vinfast.rental_service.dtos.request.RegisterRequest;
 import com.vinfast.rental_service.dtos.request.SignInRequest;
 import com.vinfast.rental_service.dtos.response.TokenResponse;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.model.Token;
+import com.vinfast.rental_service.model.User;
 import com.vinfast.rental_service.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
@@ -30,6 +33,8 @@ public class AuthenticationService {
     private final UserService userService;
 
     private final UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     public TokenResponse accessToken(SignInRequest request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -78,6 +83,24 @@ public class AuthenticationService {
 
         final String email = jwtService.extractUserName(token, ACCESS_TOKEN);
         tokenService.delete(email);
+    }
+
+    public void register(RegisterRequest request){
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        var user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .build();
+
+        userRepository.save(user);
+
+        log.info("Register user successfully!");
     }
 
 }
