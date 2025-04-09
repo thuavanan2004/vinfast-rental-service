@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 import static com.vinfast.rental_service.enums.TokenType.REFRESH_TOKEN;
 
 @Slf4j
@@ -65,6 +66,18 @@ public class AuthenticationService {
                 .refreshToken(refreshToken)
                 .userId(user.getId())
                 .build();
+    }
+
+    public void removeToken(HttpServletRequest request){
+        log.info("---------- logout ----------");
+
+        final String token = request.getHeader("token");
+        if(token == null || token.isEmpty()){
+            throw new InvalidDataException("Token must be not blank");
+        }
+
+        final String email = jwtService.extractUserName(token, ACCESS_TOKEN);
+        tokenService.delete(email);
     }
 
 }

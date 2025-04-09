@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientAuthenticationController {
     private final AuthenticationService authenticationService;
 
-    @Operation
+    @Operation(summary = "Api login get access token ")
     @PostMapping("/access-token")
     public ResponseData<?> access(@Valid @RequestBody SignInRequest request){
         log.info("Get access token");
@@ -41,7 +41,7 @@ public class ClientAuthenticationController {
         }
     }
 
-    @Operation
+    @Operation(summary = "Refresh token for get new access token")
     @PostMapping("/refresh-token")
     public ResponseData<?> refresh(HttpServletRequest request){
         log.info("Get refresh token");
@@ -52,6 +52,19 @@ public class ClientAuthenticationController {
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Refresh token failed");
+        }
+    }
+
+    @Operation(summary = "Api for logout")
+    @PostMapping("/remove-token")
+    public ResponseData<?> remove(HttpServletRequest request){
+        log.info("Remove token");
+        try{
+            authenticationService.removeToken(request);
+            return new ResponseData<>(HttpStatus.OK.value(), "Remove token successfully");
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Remove token failed");
         }
     }
 }
