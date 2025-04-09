@@ -77,6 +77,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    @Override
     public UserResponse getUser(long userId) {
         return userMapper.toDTO(getUserById(userId));
     }
