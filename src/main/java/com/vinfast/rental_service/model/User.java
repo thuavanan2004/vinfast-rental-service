@@ -4,8 +4,12 @@ import com.vinfast.rental_service.enums.UserStatus;
 import com.vinfast.rental_service.validate.EnumPattern;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +18,7 @@ import java.time.LocalDate;
 @Entity
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,18 +33,19 @@ public class User {
     @Column(nullable = false, length = 20)
     private String phone;
 
-    @Column(nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String password;
 
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    @Column(length = 50)
+    @Column(name= "driving_license_number", length = 50)
     private String drivingLicenseNumber;
 
-    @Column(length = 255)
+    @Column(name= "driving_license_image", length = 255)
     private String drivingLicenseImage;
 
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
     @Column(nullable = false)
@@ -50,10 +55,39 @@ public class User {
     @Column(name = "status", nullable = false)
     private UserStatus status = UserStatus.active;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name="created_at", nullable = false, updatable = false)
     private LocalDate createdAt;
 
-    @Column(nullable = false)
+    @Column(name="updated_at", nullable = false)
     private LocalDate updatedAt;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return status == UserStatus.banned;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }

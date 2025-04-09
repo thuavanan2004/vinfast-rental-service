@@ -18,6 +18,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +33,7 @@ import static com.vinfast.rental_service.utils.AppConst.SEARCH_SPEC_OPERATOR;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
 
     private final RentalOrderRepository rentalOrderRepository;
@@ -39,9 +42,13 @@ public class UserServiceImpl implements UserService {
 
     private final RentalHistoryMapper rentalHistoryMapper;
 
-
     private User getUserById(long userId){
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     @Override

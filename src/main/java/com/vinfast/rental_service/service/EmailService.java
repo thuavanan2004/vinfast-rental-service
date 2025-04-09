@@ -23,7 +23,7 @@ public class EmailService {
             helper.setSubject("Đặt lại mật khẩu của bạn");
             helper.setText(
                     "<p>Đội ngũ hỗ trợ sẽ sớm liên hệ tới bạn trong thời gian sớm nhất!</p>",
-                    true // Kích hoạt HTML trong email
+                    true
             );
             mailSender.send(message);
         } catch (MessagingException e) {

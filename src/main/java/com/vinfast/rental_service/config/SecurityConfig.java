@@ -2,6 +2,8 @@ package com.vinfast.rental_service.config;
 
 
 import com.vinfast.rental_service.service.AdminDetailsService;
+import com.vinfast.rental_service.service.Impl.UserServiceImpl;
+import com.vinfast.rental_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +36,8 @@ import java.util.List;
 public class SecurityConfig {
     private final AdminDetailsService adminDetailsService;
 
+    private final UserServiceImpl userService;
+
     private final JwtAuthenticationFilter JwtAuthenticationFilter;
 
     @Bean
@@ -42,7 +46,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**", "/api/admin/auth/**").permitAll()
+                        .requestMatchers("/api/public/**", "/api/admin/auth/**", "/api/client/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -61,13 +65,13 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){ return new BCryptPasswordEncoder(); }
 
-//    @Bean
-//    public DaoAuthenticationProvider userAuthenticationProvider() {
-//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-//        provider.setUserDetailsService(userDetailsService);
-//        provider.setPasswordEncoder(passwordEncoder());
-//        return provider;
-//    }
+    @Bean
+    public DaoAuthenticationProvider userAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
 
     @Bean
     public DaoAuthenticationProvider adminAuthenticationProvider() {
@@ -80,7 +84,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return new ProviderManager(
-//                userAuthenticationProvider(),
+                userAuthenticationProvider(),
                 adminAuthenticationProvider()
         );
     }
