@@ -1,6 +1,7 @@
 package com.vinfast.rental_service.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
         return errorResponse;
     }
 
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, IllegalArgumentException.class, InvalidDataException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, IllegalArgumentException.class, InvalidDataException.class, HttpMessageNotReadableException.class})
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleValidationTypeMismatchException(Exception e, WebRequest webRequest){
         ErrorResponse errorResponse = new ErrorResponse();

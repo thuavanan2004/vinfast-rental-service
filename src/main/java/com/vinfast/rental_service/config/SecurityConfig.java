@@ -34,6 +34,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    private static final String[] WHITE_LIST = {"/api/public/**", "/api/admin/auth/**", "/api/client/auth/**", "/api/client/cars/**"};
     private final AdminDetailsService adminDetailsService;
 
     private final UserServiceImpl userService;
@@ -46,7 +47,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**", "/api/admin/auth/**", "/api/client/auth/**").permitAll()
+                        .requestMatchers(WHITE_LIST).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

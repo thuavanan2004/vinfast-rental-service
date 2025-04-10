@@ -1,24 +1,30 @@
 package com.vinfast.rental_service.service.Impl;
 
+import com.vinfast.rental_service.dtos.request.CarAvailabilityRequest;
 import com.vinfast.rental_service.dtos.request.CarModelCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarModelUpdateRequest;
+import com.vinfast.rental_service.dtos.response.CarModelDetailResponse;
 import com.vinfast.rental_service.dtos.response.CarModelResponse;
+import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.CarModelMapper;
 import com.vinfast.rental_service.model.CarImage;
 import com.vinfast.rental_service.model.CarModel;
 import com.vinfast.rental_service.repository.CarImageRepository;
 import com.vinfast.rental_service.repository.CarModelRepository;
+import com.vinfast.rental_service.repository.projections.CarModelProjection;
 import com.vinfast.rental_service.service.CarModelService;
-import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.service.CloudinaryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -77,16 +83,39 @@ public class CarModelServiceImpl implements CarModelService {
     }
 
     @Override
-    public CarModelResponse getCarModel(long carModelId) {
+    public CarModelDetailResponse getCarModel(long carModelId) {
         CarModel carModel = getCarModelById(carModelId);
 
         return carModelMapper.toDTO(carModel);
     }
 
     @Override
-    public List<CarModelResponse> getListCarModel() {
+    public List<CarModelDetailResponse> getListCarModel() {
         List<CarModel> records = carModelRepository.findAll();
         return records.stream().map(carModelMapper::toDTO).toList();
+    }
+
+    @Override
+    public List<CarModelResponse> getAvailableCarModels(CarAvailabilityRequest request) {
+        List<CarModelProjection> projections = carModelRepository
+                .findAvailableModels(request.getCity(), request.getPickupTime(), request.getReturnTime(), request.getRentalType());
+
+        List<CarModelResponse> list = projections.stream()
+                .map(p -> CarModelResponse.builder()
+                        .id(p.getId())
+                        .name(p.getName())
+                        .modelCode(p.getModelCode())
+                        .mainImage(p.getMainImage())
+                        .rangePerCharge(p.getRangePerCharge())
+                        .seatingCapacity(p.getSeatingCapacity())
+                        .trunkCapacity(p.getTrunkCapacity())
+                        .basePrice(p.getBasePrice())
+                        .vehicleType(p.getVehicleType())
+                        .available(p.getAvailable() != null && p.getAvailable() == 1)
+                        .build()).collect(Collectors.toList());
+
+
+       return list;
     }
 
 }

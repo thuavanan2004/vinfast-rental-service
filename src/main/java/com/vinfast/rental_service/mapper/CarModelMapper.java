@@ -2,7 +2,7 @@ package com.vinfast.rental_service.mapper;
 
 import com.vinfast.rental_service.dtos.request.CarModelCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarModelUpdateRequest;
-import com.vinfast.rental_service.dtos.response.CarModelResponse;
+import com.vinfast.rental_service.dtos.response.CarModelDetailResponse;
 import com.vinfast.rental_service.model.CarImage;
 import com.vinfast.rental_service.model.CarModel;
 import org.mapstruct.Mapper;
@@ -23,7 +23,7 @@ public interface CarModelMapper {
     void updateCarModel(CarModelUpdateRequest request, @MappingTarget CarModel carModel);
 
     @Mapping(source = "images", target = "imageUrls", qualifiedByName = "mapImagesToUrls")
-    CarModelResponse toDTO(CarModel request);
+    CarModelDetailResponse toDTO(CarModel request);
 
     @Named("mapImagesToUrls")
     default List<String> mapImagesToUrls(List<CarImage> images){
