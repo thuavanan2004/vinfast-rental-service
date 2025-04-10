@@ -55,7 +55,8 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolvers.apply(claims);
     }
 
-    private Claims extractAllClaims(String token, TokenType type) {
+    @Override
+    public Claims extractAllClaims(String token, TokenType type) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey(type)).build().parseClaimsJws(token).getBody();
     }
 
@@ -75,6 +76,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails){
+        extraClaims.put("role", userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(Object::toString)
+                .orElse("USER"));
+
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())

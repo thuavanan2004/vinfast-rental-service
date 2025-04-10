@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@IdClass(OrderInsuranceOptionId.class)
 public class OrderInsuranceOption {
 
     @Id

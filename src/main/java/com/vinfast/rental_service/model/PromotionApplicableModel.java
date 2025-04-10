@@ -13,6 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@IdClass(PromotionApplicableModelId.class)
 public class PromotionApplicableModel {
 
     @Id

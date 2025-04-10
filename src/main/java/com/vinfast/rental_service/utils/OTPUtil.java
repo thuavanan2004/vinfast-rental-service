@@ -16,5 +16,4 @@ public class OTPUtil {
 
         return otp.toString();
     }
-
 }

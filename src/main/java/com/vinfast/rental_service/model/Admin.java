@@ -83,16 +83,16 @@ public class Admin implements UserDetails, Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         if (role != null) {
+            if (role.getName() != null) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+            }
+
             if (role.getPermissions() != null) {
                 for (Permission permission : role.getPermissions()) {
                     if (permission != null) {
                         authorities.add(new SimpleGrantedAuthority(permission.getCode()));
                     }
                 }
-            }
-
-            if (role.getName() != null) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
             }
         } else {
             System.out.println("Admin has no role assigned!");

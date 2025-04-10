@@ -1,5 +1,6 @@
 package com.vinfast.rental_service.service;
 
+import com.vinfast.rental_service.dtos.request.RentalOrderCreateRequest;
 import com.vinfast.rental_service.dtos.request.SpecialRequest;
 import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.enums.RentalOrderStatus;
@@ -11,4 +12,6 @@ public interface RentalOrderService {
     void updateRentalOrderStatus(long orderId, RentalOrderStatus status);
 
     void addSpecialRequest(long orderId, SpecialRequest request);
+
+    void createOrder(RentalOrderCreateRequest request);
 }

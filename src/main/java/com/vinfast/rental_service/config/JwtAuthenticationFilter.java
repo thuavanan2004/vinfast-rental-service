@@ -1,7 +1,9 @@
 package com.vinfast.rental_service.config;
 
 import com.vinfast.rental_service.service.AdminDetailsService;
+import com.vinfast.rental_service.service.Impl.UserServiceImpl;
 import com.vinfast.rental_service.service.JwtService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,6 +35,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final AdminDetailsService adminDetailsService;
+    private final UserServiceImpl userServiceImpl;
 
 
     @Override
@@ -61,15 +64,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            Claims claims = jwtService.extractAllClaims(jwt, ACCESS_TOKEN);
+            String username = claims.getSubject();
+            String role = (String) claims.get("role");
 
-            String username = jwtService.extractUserName(jwt, ACCESS_TOKEN);
             if (username == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Token is invalid");
                 return;
             }
 
-            UserDetails userDetails = adminDetailsService.loadUserByUsername(username);
+            UserDetails userDetails;
+            if ("ROLE_ADMIN".equals(role)) {
+                userDetails = adminDetailsService.loadUserByUsername(username);
+            } else {
+                userDetails = userServiceImpl.loadUserByUsername(username);
+            }
+
             if (StringUtils.hasText(jwt) && jwtService.isTokenValid(jwt, ACCESS_TOKEN, userDetails)) {
                 setAuthentication(userDetails, request);
             }
