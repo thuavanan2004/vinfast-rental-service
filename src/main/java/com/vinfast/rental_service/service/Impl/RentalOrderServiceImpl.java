@@ -13,7 +13,11 @@ import com.vinfast.rental_service.mapper.RentalOrderMapper;
 import com.vinfast.rental_service.model.*;
 import com.vinfast.rental_service.repository.*;
 import com.vinfast.rental_service.repository.specification.RentalOrderSpecificationBuilder;
+import com.vinfast.rental_service.service.OrderInsuranceOptionService;
+import com.vinfast.rental_service.service.PaymentService;
+import com.vinfast.rental_service.service.PromotionApplicableModelService;
 import com.vinfast.rental_service.service.RentalOrderService;
+import com.vinfast.rental_service.service.validateService.OrderValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,7 +50,7 @@ public class RentalOrderServiceImpl implements RentalOrderService {
 
     private final CarRepository carRepository;
 
-    private final PaymentRepository paymentRepository;
+    private final PaymentService paymentService;
 
     private final PickupLocationRepository pickupLocationRepository;
 
@@ -54,9 +58,11 @@ public class RentalOrderServiceImpl implements RentalOrderService {
 
     private final PromotionRepository promotionRepository;
 
-    private final OrderInsuranceOptionRepository orderInsuranceOptionRepository;
+    private final OrderValidationService orderValidationService;
 
-    private final PromotionApplicableModelRepository promotionApplicableModelRepository;
+    private final OrderInsuranceOptionService orderInsuranceOptionService;
+
+    private final PromotionApplicableModelService promotionApplicableModelService;
 
     @Override
     public PageResponse<?> getAll(Pageable pageable, String[] orders, String[] cars) {
@@ -121,15 +127,7 @@ public class RentalOrderServiceImpl implements RentalOrderService {
     @Override
     @Transactional
     public void createOrder(RentalOrderCreateRequest request) {
-        LocalDateTime now = LocalDateTime.now();
-
-        if (!request.getStartDateTime().isAfter(now)) {
-            throw new InvalidDataException("Start date must be in the future.");
-        }
-
-        if (!request.getStartDateTime().isBefore(request.getEndDateTime())) {
-            throw new InvalidDataException("Start date must be before end date.");
-        }
+        orderValidationService.validateOrderRequest(request);
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new InvalidDataException("User not found with userId: " + request.getUserId()));
@@ -157,41 +155,22 @@ public class RentalOrderServiceImpl implements RentalOrderService {
                 .basePrice(request.getBasePrice())
                 .specialRequests(request.getSpecialRequest())
                 .totalPrice(totalPrice)
+                .user(user)
+                .car(car)
+                .insuranceFee(insuranceOption.getDailyRate())
+                .pickupLocation(pickupLocation)
+                .discountAmount(discountAmount)
                 .build();
-        rentalOrder.setUser(user);
-        rentalOrder.setCar(car);
-        rentalOrder.setPickupLocation(pickupLocation);
-        rentalOrder.setInsuranceFee(insuranceOption.getDailyRate());
-        rentalOrder.setDiscountAmount(discountAmount);
-
         rentalOrderRepository.save(rentalOrder);
 
         car.setPickupLocation(pickupLocation);
         carRepository.save(car);
 
-        OrderInsuranceOption orderInsuranceOption = OrderInsuranceOption.builder()
-                .order(rentalOrder)
-                .insuranceOption(insuranceOption)
-                .fee(insuranceOption.getDailyRate())
-                .build();
+        orderInsuranceOptionService.create(rentalOrder, insuranceOption, insuranceOption.getDailyRate());
 
-        orderInsuranceOptionRepository.save(orderInsuranceOption);
+        promotionApplicableModelService.create(promotion, car.getCarModel());
 
-        CarModel carModel = car.getCarModel();
-        PromotionApplicableModel promotionApplicableModel = PromotionApplicableModel.builder()
-                .promotion(promotion)
-                .carModel(carModel)
-                .build();
-        promotionApplicableModelRepository.save(promotionApplicableModel);
-
-        Payment payment = Payment.builder()
-                .order(rentalOrder)
-                .amount(totalPrice)
-                .paymentMethod(PaymentMethod.cash)
-                .build();
-
-        paymentRepository.save(payment);
-
+        paymentService.createPayment(rentalOrder, PaymentMethod.cash);
         log.info("Create rental order successfully");
     }
 
