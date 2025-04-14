@@ -3,6 +3,7 @@ package com.vinfast.rental_service.service.Impl;
 import com.vinfast.rental_service.dtos.request.RentalOrderCreateRequest;
 import com.vinfast.rental_service.dtos.request.SpecialRequest;
 import com.vinfast.rental_service.dtos.response.PageResponse;
+import com.vinfast.rental_service.dtos.response.RentalHistoryResponse;
 import com.vinfast.rental_service.dtos.response.RentalOrderResponse;
 import com.vinfast.rental_service.enums.DiscountType;
 import com.vinfast.rental_service.enums.PaymentMethod;
@@ -22,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -172,6 +172,20 @@ public class RentalOrderServiceImpl implements RentalOrderService {
 
         paymentService.createPayment(rentalOrder, PaymentMethod.cash);
         log.info("Create rental order successfully");
+    }
+
+    @Override
+    public PageResponse<?> getOrders(long userId, Pageable pageable) {
+        Page<RentalOrder> rentalOrderList = rentalOrderRepository.findAllByUserId(userId, pageable);
+
+        List<RentalOrderResponse> list = rentalOrderList.stream().map(rentalOrderMapper::toDTO).toList();
+
+        return PageResponse.builder()
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalPage(rentalOrderList.getTotalPages())
+                .items(list)
+                .build();
     }
 
 

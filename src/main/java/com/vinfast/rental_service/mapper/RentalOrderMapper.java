@@ -41,4 +41,5 @@ public interface RentalOrderMapper {
     default  String mapByPayments(List<Payment> payments){
         return payments.get(0).getPaymentStatus().toString();
     }
+
 }

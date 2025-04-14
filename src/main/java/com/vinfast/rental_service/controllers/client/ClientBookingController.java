@@ -7,18 +7,16 @@ import com.vinfast.rental_service.dtos.response.ResponseError;
 import com.vinfast.rental_service.service.RentalOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Booking")
+@Tag(name = "Client Booking")
 @Slf4j
 @Validated
 @RestController
@@ -34,6 +32,18 @@ public class ClientBookingController {
         try{
             rentalOrderService.createOrder(request);
             return new ResponseData<>(HttpStatus.OK.value(),"Create a car rental order successfully");
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Create a car rental order failed");
+        }
+    }
+
+    @Operation(summary = "Get list rental order by userId")
+    @GetMapping("/{userId}")
+    public ResponseData<?> getOrders(@PathVariable @Min(1) long userId, Pageable pageable){
+        log.info("Get list rental order by userId");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Create a car rental order successfully", rentalOrderService.getOrders(userId, pageable));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Create a car rental order failed");

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@Tag(name = "Car")
+@Tag(name = "Client Car")
 @Slf4j
 @Validated
 @RestController

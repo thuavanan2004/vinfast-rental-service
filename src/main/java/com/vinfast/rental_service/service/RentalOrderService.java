@@ -14,4 +14,6 @@ public interface RentalOrderService {
     void addSpecialRequest(long orderId, SpecialRequest request);
 
     void createOrder(RentalOrderCreateRequest request);
+
+    PageResponse<?> getOrders(long userId, Pageable pageable);
 }
