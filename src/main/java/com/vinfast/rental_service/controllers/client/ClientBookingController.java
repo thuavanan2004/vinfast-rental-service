@@ -39,14 +39,26 @@ public class ClientBookingController {
     }
 
     @Operation(summary = "Get list rental order by userId")
-    @GetMapping("/{userId}")
+    @GetMapping("/my-bookings/{userId}")
     public ResponseData<?> getOrders(@PathVariable @Min(1) long userId, Pageable pageable){
         log.info("Get list rental order by userId");
         try{
-            return new ResponseData<>(HttpStatus.OK.value(),"Create a car rental order successfully", rentalOrderService.getOrders(userId, pageable));
+            return new ResponseData<>(HttpStatus.OK.value(),"Get list rental order by userId successfully", rentalOrderService.getOrders(userId, pageable));
         }catch (Exception e){
             log.error("errorMessage={}", e.getMessage(), e.getCause());
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Create a car rental order failed");
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get list rental order by userId failed");
+        }
+    }
+
+    @Operation(summary = "Get info rental order")
+    @GetMapping("/{rentalOrderId}")
+    public ResponseData<?> getDetailOrder(@PathVariable @Min(1) long rentalOrderId){
+        log.info("Get info rental order");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Get info rental order successfully", rentalOrderService.getDetailOrder(rentalOrderId));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get info rental order failed");
         }
     }
 }

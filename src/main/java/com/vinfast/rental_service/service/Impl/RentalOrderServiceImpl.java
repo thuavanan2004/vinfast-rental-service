@@ -188,6 +188,13 @@ public class RentalOrderServiceImpl implements RentalOrderService {
                 .build();
     }
 
+    @Override
+    public RentalOrderResponse getDetailOrder(long rentalOrderId) {
+        RentalOrder record = rentalOrderRepository.findById(rentalOrderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rental Order not found with id " + rentalOrderId));
+        return rentalOrderMapper.toDTO(record);
+    }
+
 
     private BigDecimal calculateDiscountAmount(Promotion promotion, BigDecimal basePrice){
         BigDecimal result;
