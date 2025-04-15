@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service;
+package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.enums.PaymentMethod;
 import com.vinfast.rental_service.model.Payment;

@@ -1,15 +1,15 @@
 package com.vinfast.rental_service.config;
 
 
-import com.vinfast.rental_service.service.AdminDetailsService;
+import com.vinfast.rental_service.service.Impl.AdminDetailsService;
 import com.vinfast.rental_service.service.Impl.UserServiceImpl;
-import com.vinfast.rental_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,11 +35,8 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private static final String[] WHITE_LIST = {"/api/public/**", "/api/admin/auth/**", "/api/client/auth/**", "/api/client/cars/**"};
-    private final AdminDetailsService adminDetailsService;
-
-    private final UserServiceImpl userService;
-
     private final JwtAuthenticationFilter JwtAuthenticationFilter;
+    private final CustomAuthenticationProvider customAuthProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -64,32 +61,32 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**", "/v3/**", "/webjars/**", "/swagger-ui*/*swagger-initializer.js", "/swagger-ui*/**");
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){ return new BCryptPasswordEncoder(); }
+
+//    @Bean
+//    public DaoAuthenticationProvider adminAuthenticationProvider() {
+//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//        provider.setUserDetailsService(adminDetailsService);
+//        provider.setPasswordEncoder(passwordEncoder());
+//        return provider;
+//    }
+//
+//    @Bean
+//    public DaoAuthenticationProvider userAuthenticationProvider() {
+//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//        provider.setUserDetailsService(userService);
+//        provider.setPasswordEncoder(passwordEncoder());
+//        return provider;
+//    }
+
+
 
     @Bean
-    public DaoAuthenticationProvider userAuthenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
+        auth.authenticationProvider(customAuthProvider);
+        return auth.build();
     }
 
-    @Bean
-    public DaoAuthenticationProvider adminAuthenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(adminDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return new ProviderManager(
-                userAuthenticationProvider(),
-                adminAuthenticationProvider()
-        );
-    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

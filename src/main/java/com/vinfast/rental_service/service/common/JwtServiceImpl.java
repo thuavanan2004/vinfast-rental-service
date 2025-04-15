@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service.Impl;
+package com.vinfast.rental_service.service.common;
 
 import com.vinfast.rental_service.enums.TokenType;
 import com.vinfast.rental_service.service.JwtService;

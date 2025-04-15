@@ -14,6 +14,7 @@ import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.validate.EnumPattern;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
+
+import java.io.IOException;
+
 
 @Tag(name = "Car management")
 @Slf4j
@@ -168,6 +172,24 @@ public class AdminCarController {
             return new ResponseData<>(HttpStatus.CREATED.value(), "Get list maintenance-report successfully", carService.maintenanceReportsByCarId(carId, pageable));
         }catch (ResourceNotFoundException e) {
             log.error("Get list maintenance: ResourceNotFoundException: {}", e.getMessage());
+            return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('maintenance:read')")
+    @Operation(summary = "Get file excel")
+    @PostMapping("/export/excel")
+    public ResponseData<?> exportCarToExcel(HttpServletResponse response) {
+        log.info("Export file info car to excel ");
+        try{
+            carService.exportCars(response);
+            return new ResponseData<>(HttpStatus.CREATED.value(),
+                    "Export file info car to excel  successfully");
+        }catch (IOException e) {
+            log.error("Export file: IOException: {}", e.getMessage());
             return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage(), e.getCause());

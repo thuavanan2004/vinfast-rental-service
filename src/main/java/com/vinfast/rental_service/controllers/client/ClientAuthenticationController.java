@@ -7,7 +7,7 @@ import com.vinfast.rental_service.dtos.request.SignInRequest;
 import com.vinfast.rental_service.dtos.request.VerifyOtpRequest;
 import com.vinfast.rental_service.dtos.response.ResponseData;
 import com.vinfast.rental_service.dtos.response.ResponseError;
-import com.vinfast.rental_service.service.AuthenticationService;
+import com.vinfast.rental_service.service.Impl.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service;
+package com.vinfast.rental_service.service.common;
 
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.model.Token;

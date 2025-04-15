@@ -17,4 +17,6 @@ public interface UserService {
     void changeStatus(long userId, UserStatus status);
 
     PageResponse<?> rentalHistory(long userId, Pageable pageable);
+
+    boolean existsByEmail(String email);
 }

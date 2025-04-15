@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service.validateService;
+package com.vinfast.rental_service.service.validate;
 
 import com.vinfast.rental_service.dtos.request.RentalOrderCreateRequest;
 import com.vinfast.rental_service.exceptions.InvalidDateException;

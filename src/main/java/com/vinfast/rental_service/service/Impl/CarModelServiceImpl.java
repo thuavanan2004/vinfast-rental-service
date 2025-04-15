@@ -5,7 +5,6 @@ import com.vinfast.rental_service.dtos.request.CarModelCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarModelUpdateRequest;
 import com.vinfast.rental_service.dtos.response.CarModelDetailResponse;
 import com.vinfast.rental_service.dtos.response.CarModelResponse;
-import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.CarModelMapper;
 import com.vinfast.rental_service.model.CarImage;
@@ -14,16 +13,14 @@ import com.vinfast.rental_service.repository.CarImageRepository;
 import com.vinfast.rental_service.repository.CarModelRepository;
 import com.vinfast.rental_service.repository.projections.CarModelProjection;
 import com.vinfast.rental_service.service.CarModelService;
-import com.vinfast.rental_service.service.CloudinaryService;
+import com.vinfast.rental_service.service.common.CloudinaryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j

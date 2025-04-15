@@ -17,7 +17,7 @@ import com.vinfast.rental_service.repository.PermissionRepository;
 import com.vinfast.rental_service.repository.RoleRepository;
 import com.vinfast.rental_service.service.AdminService;
 import com.vinfast.rental_service.service.JwtService;
-import com.vinfast.rental_service.service.TokenService;
+import com.vinfast.rental_service.service.common.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 

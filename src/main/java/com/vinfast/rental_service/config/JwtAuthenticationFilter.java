@@ -1,6 +1,6 @@
 package com.vinfast.rental_service.config;
 
-import com.vinfast.rental_service.service.AdminDetailsService;
+import com.vinfast.rental_service.service.Impl.AdminDetailsService;
 import com.vinfast.rental_service.service.Impl.UserServiceImpl;
 import com.vinfast.rental_service.service.JwtService;
 import io.jsonwebtoken.Claims;
@@ -12,19 +12,14 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;

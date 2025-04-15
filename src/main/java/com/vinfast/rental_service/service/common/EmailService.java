@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service;
+package com.vinfast.rental_service.service.common;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

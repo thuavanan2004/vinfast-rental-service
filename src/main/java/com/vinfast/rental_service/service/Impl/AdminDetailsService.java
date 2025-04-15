@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service;
+package com.vinfast.rental_service.service.Impl;
 
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.repository.AdminRepository;
@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,4 +20,7 @@ public class AdminDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found with username:{} " + username));
     }
 
+    public boolean existByUsername(String username) {
+        return adminRepository.existsByUsername(username);
+    }
 }

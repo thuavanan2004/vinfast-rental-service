@@ -12,7 +12,7 @@ import com.vinfast.rental_service.model.User;
 import com.vinfast.rental_service.repository.AdminRepository;
 import com.vinfast.rental_service.repository.SupportTicketRepository;
 import com.vinfast.rental_service.repository.UserRepository;
-import com.vinfast.rental_service.service.EmailService;
+import com.vinfast.rental_service.service.common.EmailService;
 import com.vinfast.rental_service.service.SupportTicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

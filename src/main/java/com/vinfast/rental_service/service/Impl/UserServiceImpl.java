@@ -52,6 +52,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+
+    @Override
     public PageResponse<?> getAll(Pageable pageable, String[] users) {
         Page<User> listUser;
         if(users != null){

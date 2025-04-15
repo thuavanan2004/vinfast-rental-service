@@ -7,7 +7,11 @@ import com.vinfast.rental_service.dtos.response.CarResponse;
 import com.vinfast.rental_service.dtos.response.MaintenanceDetailResponse;
 import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.enums.CarStatus;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Pageable;
+
+import java.io.IOException;
 
 public interface CarService {
     void addNewCar(long carModelId, CarCreateRequest request);
@@ -25,4 +29,6 @@ public interface CarService {
     PageResponse<?> maintenanceReportsByCarId(long carId, Pageable pageable);
 
     PageResponse<?> getListCarByCarModel(long carModelId, Pageable pageable);
+
+    void exportCars(HttpServletResponse response) throws IOException;
 }

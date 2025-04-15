@@ -1,4 +1,4 @@
-package com.vinfast.rental_service.service;
+package com.vinfast.rental_service.service.Impl;
 
 
 import com.vinfast.rental_service.dtos.request.RegisterRequest;
@@ -10,10 +10,14 @@ import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.model.Token;
 import com.vinfast.rental_service.model.User;
 import com.vinfast.rental_service.repository.UserRepository;
+import com.vinfast.rental_service.service.JwtService;
+import com.vinfast.rental_service.service.UserService;
+import com.vinfast.rental_service.service.common.EmailService;
+import com.vinfast.rental_service.service.common.OtpService;
+import com.vinfast.rental_service.service.common.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 import static com.vinfast.rental_service.enums.TokenType.REFRESH_TOKEN;
-import static com.vinfast.rental_service.utils.OTPUtil.generateOTP;
 
 @Slf4j
 @Service
