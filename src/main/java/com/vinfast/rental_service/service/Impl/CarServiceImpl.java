@@ -25,6 +25,7 @@ import com.vinfast.rental_service.service.common.CarExcelService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.Function;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -193,10 +194,21 @@ public class CarServiceImpl implements CarService {
     public void importCars(MultipartFile file) throws IOException {
         List<Map<String, Object>> cars = carExcelService.importFromExcel(file);
 
+        Set<String> modelNames = cars.stream().map(map -> map.get("carModelName").toString()).collect(Collectors.toSet());
+        Set<String> locationNames = cars.stream().map(map -> map.get("pickupLocationName").toString()).collect(Collectors.toSet());
+
+        Map<String, CarModel> carModelMap = carModelRepository.findByNameIn(modelNames).stream().collect(Collectors.toMap(CarModel::getName, m -> m));
+
+        Map<String, PickupLocation> pickupLocationMap = pickupLocationRepository.findByNameIn(locationNames).stream()
+                .collect(Collectors.toMap(PickupLocation::getName, p -> p));
 
         List<Car> records = cars.stream().map(map -> {
-            PickupLocation pickupLocation  = pickupLocationRepository.findByName(map.get("pickupLocationName").toString());
-            CarModel carModel = carModelRepository.findByName(map.get("carModelName").toString());
+            String modelName = map.get("carModelName").toString();
+            String locationName = map.get("pickupLocationName").toString();
+
+            CarModel carModel = carModelMap.get(modelName);
+            PickupLocation pickupLocation = pickupLocationMap.get(locationName);
+
             Car car = (Car) map.get("car");
             car.setCarModel(carModel);
             car.setPickupLocation(pickupLocation);

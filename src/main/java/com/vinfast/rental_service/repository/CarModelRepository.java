@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface CarModelRepository extends JpaRepository<CarModel, Long> {
@@ -58,4 +59,6 @@ public interface CarModelRepository extends JpaRepository<CarModel, Long> {
     );
 
     CarModel findByName(String name);
+
+    List<CarModel> findByNameIn(Set<String> names);
 }
