@@ -54,6 +54,8 @@ public class CarServiceImpl implements CarService {
 
     private final MaintenanceRepository maintenanceRepository;
 
+    private final CarExcelService carExcelService;
+
 
     @Override
     public void addNewCar(long carModelId, CarCreateRequest request) {
@@ -177,7 +179,8 @@ public class CarServiceImpl implements CarService {
     @Override
     public void exportCars(HttpServletResponse response) throws IOException {
         List<Car> cars = carRepository.findAll();
-        CarExcelService carExcelService = new CarExcelService(cars);
-        carExcelService.export(response);
+
+        String filePath = "C:\\Users\\Admin\\Downloads\\cars.xlsx";
+        carExcelService.exportToExcel(cars, filePath);
     }
 }
