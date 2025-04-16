@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.vinfast.rental_service.enums.TokenType.ACCESS_TOKEN;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -61,7 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Claims claims = jwtService.extractAllClaims(jwt, ACCESS_TOKEN);
             String username = claims.getSubject();
-            String role = (String) claims.get("role");
+            List<String> roles = (List<String>) claims.get("roles");
 
             if (username == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -70,11 +71,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             UserDetails userDetails;
-            if ("ROLE_ADMIN".equals(role)) {
+            if (roles != null && roles.contains("ROLE_ADMIN")) {
                 userDetails = adminDetailsService.loadUserByUsername(username);
             } else {
                 userDetails = userServiceImpl.loadUserByUsername(username);
             }
+
 
             if (StringUtils.hasText(jwt) && jwtService.isTokenValid(jwt, ACCESS_TOKEN, userDetails)) {
                 setAuthentication(userDetails, request);

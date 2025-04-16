@@ -12,6 +12,8 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -50,15 +52,26 @@ public class CarExcelService {
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
         Cell cell = row.createCell(columnCount);
+
         if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
+        } else if (value instanceof Long) {
+            cell.setCellValue((Long) value);
+        } else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
-            cell.setCellValue((String) value);
+        } else if (value instanceof java.util.Date) {
+            cell.setCellValue((java.util.Date) value);
+        } else if (value != null) {
+            cell.setCellValue(value.toString());
+        } else {
+            cell.setCellValue("");
         }
+
         cell.setCellStyle(style);
     }
+
 
     private void writeDataLines() {
         int rowCount = 1;
@@ -82,16 +95,15 @@ public class CarExcelService {
     }
 
     public void export(HttpServletResponse response) throws IOException {
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=cars.xlsx");
+        String filePath = "C:\\Users\\Admin\\Downloads\\cars.xlsx";
+        FileOutputStream fileOut = new FileOutputStream(filePath);
 
         writeHeaderLine();
         writeDataLines();
 
-        ServletOutputStream outputStream = response.getOutputStream();
-        workbook.write(outputStream);
+        workbook.write(fileOut);
         workbook.close();
+        fileOut.close();
 
-        outputStream.close();
     }
 }

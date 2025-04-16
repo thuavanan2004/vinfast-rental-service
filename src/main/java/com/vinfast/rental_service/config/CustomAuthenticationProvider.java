@@ -10,7 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String rawPassword = authentication.getCredentials().toString();
 
         UserDetails userDetails;
-        boolean existUser = userService.existsByEmail(username);
         boolean existAdmin = adminDetailsService.existByUsername(username);
         if(existAdmin){
             userDetails = adminDetailsService.loadUserByUsername(username);

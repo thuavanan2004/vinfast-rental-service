@@ -84,7 +84,7 @@ public class Admin implements UserDetails, Serializable {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         if (role != null) {
             if (role.getName() != null) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             }
 
             if (role.getPermissions() != null) {
