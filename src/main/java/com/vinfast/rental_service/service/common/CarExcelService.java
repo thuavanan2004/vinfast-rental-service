@@ -8,10 +8,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -22,6 +29,7 @@ public class CarExcelService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+//  Export
     public void exportToExcel(List<Car> cars, String filePath) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Cars");
@@ -179,6 +187,125 @@ public class CarExcelService {
             case maintenance: return "Bảo dưỡng";
             case unavailable: return "Không khả dụng";
             default: return status.toString();
+        }
+    }
+
+//    Import
+
+    public List<Car> importFromExcel(MultipartFile file) throws IOException {
+        List<Car> cars = new ArrayList<>();
+        try (InputStream in = file.getInputStream();
+             XSSFWorkbook workbook = new XSSFWorkbook(in)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            int lastRow = sheet.getLastRowNum();
+
+
+            for (int i = 1; i <= lastRow; i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                Car car = new Car();
+                String licensePlate = getCellValue(row.getCell(1));
+                String vinNumber = getCellValue(row.getCell(2));
+                String color = getCellValue(row.getCell(3));
+
+                String manufacturingDateStr = getCellValue(row.getCell(4));
+                LocalDate manufacturingDate = manufacturingDateStr.isEmpty() ? null :
+                        LocalDate.parse(manufacturingDateStr, DATE_FORMATTER);
+
+                int currentMileage = (int) getNumericCellValue(row.getCell(5));
+
+
+
+                String statusStr = getCellValue(row.getCell(6));
+                CarStatus status = translateStatusFromString(statusStr);
+
+                String lastMaintenanceDateStr = getCellValue(row.getCell(7));
+                LocalDate lastMaintenanceDate = lastMaintenanceDateStr.isEmpty() ? null :
+                        LocalDate.parse(lastMaintenanceDateStr, DATE_FORMATTER);
+
+                double nextMaintenanceMileageDouble = getNumericCellValue(row.getCell(8));
+                Integer nextMaintenanceMileage = (int) nextMaintenanceMileageDouble;
+
+
+                double batteryHealthStr = getNumericCellValue(row.getCell(9));
+                BigDecimal batteryHealth = BigDecimal.valueOf(batteryHealthStr);
+
+
+                String carModelName = getCellValue(row.getCell(10));
+                String pickupLocationName = getCellValue(row.getCell(11));
+
+                String createdAtStr = getCellValue(row.getCell(12));
+                LocalDateTime createdAt = createdAtStr.isEmpty() ? null :
+                        LocalDateTime.parse(createdAtStr, DATETIME_FORMATTER);
+
+                String updatedAtStr = getCellValue(row.getCell(13));
+                LocalDateTime updatedAt = updatedAtStr.isEmpty() ? null :
+                        LocalDateTime.parse(updatedAtStr, DATETIME_FORMATTER);
+
+                car.setLicensePlate(licensePlate);
+                car.setVinNumber(vinNumber);
+                car.setColor(color);
+                car.setManufacturingDate(manufacturingDate);
+                car.setCurrentMileage(currentMileage);
+                car.setStatus(status);
+                car.setLastMaintenanceDate(lastMaintenanceDate);
+                car.setNextMaintenanceMileage(nextMaintenanceMileage);
+                car.setBatteryHealth(batteryHealth);
+                car.setCreatedAt(createdAt);
+                car.setUpdatedAt(updatedAt);
+
+                cars.add(car);
+            }
+        }
+        log.info("Imported {} cars from Excel file: {}", cars.size(), file);
+        return cars;
+    }
+
+    /**
+     * Giúp đọc giá trị của một cell dưới dạng chuỗi.
+     */
+    private String getCellValue(Cell cell) {
+        if (cell == null) return "";
+        cell.setCellType(CellType.STRING);
+        return cell.getStringCellValue().trim();
+    }
+
+    /**
+     * Lấy giá trị số từ cell; nếu cell rỗng trả về 0.
+     */
+    private double getNumericCellValue(Cell cell) {
+        if (cell == null) return 0;
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return cell.getNumericCellValue();
+        } else {
+            String value = getCellValue(cell);
+            return value.isEmpty() ? 0 : Double.parseDouble(value);
+        }
+    }
+
+    /**
+     * Dịch ngược trạng thái từ chuỗi của Excel về enum CarStatus.
+     * Giả sử trong file export, trạng thái được in ra là:
+     * - "Sẵn sàng" cho available
+     * - "Đang thuê" cho rented
+     * - "Bảo dưỡng" cho maintenance
+     * - "Không khả dụng" cho unavailable
+     */
+    private CarStatus translateStatusFromString(String statusStr) {
+        if (statusStr == null || statusStr.isEmpty()) return null;
+        switch (statusStr.toLowerCase()) {
+            case "sẵn sàng":
+                return CarStatus.available;
+            case "đang thuê":
+                return CarStatus.rented;
+            case "bảo dưỡng":
+                return CarStatus.maintenance;
+            case "không khả dụng":
+                return CarStatus.unavailable;
+            default:
+                return null;
         }
     }
 }

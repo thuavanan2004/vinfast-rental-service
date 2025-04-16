@@ -10,6 +10,7 @@ import com.vinfast.rental_service.enums.CarStatus;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -30,5 +31,7 @@ public interface CarService {
 
     PageResponse<?> getListCarByCarModel(long carModelId, Pageable pageable);
 
-    void exportCars(HttpServletResponse response) throws IOException;
+    void exportCars() throws IOException;
+
+    void importCars(MultipartFile file) throws IOException;
 }

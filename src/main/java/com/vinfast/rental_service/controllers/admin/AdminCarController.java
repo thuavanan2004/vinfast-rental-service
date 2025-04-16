@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -179,17 +180,35 @@ public class AdminCarController {
         }
     }
 
-    @PreAuthorize("hasAuthority('maintenance:read')")
+    @PreAuthorize("hasAuthority('car:read')")
     @Operation(summary = "Get file excel")
     @PostMapping("/export/excel")
-    public ResponseData<?> exportCarToExcel(HttpServletResponse response) {
+    public ResponseData<?> exportCarToExcel() {
         log.info("Export file info car to excel ");
         try{
-            carService.exportCars(response);
+            carService.exportCars();
             return new ResponseData<>(HttpStatus.CREATED.value(),
                     "Export file info car to excel  successfully");
         }catch (IOException e) {
             log.error("Export file: IOException: {}", e.getMessage());
+            return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('car:read')")
+    @Operation(summary = "Get file excel")
+    @PostMapping("/import/excel")
+    public ResponseData<?> importCarToExcel(@RequestParam("file") MultipartFile file) {
+        log.info("Import file info car to excel ");
+        try{
+            carService.importCars(file);
+            return new ResponseData<>(HttpStatus.CREATED.value(),
+                    "Import file info car to excel  successfully");
+        }catch (IOException e) {
+            log.error("Import file: IOException: {}", e.getMessage());
             return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage(), e.getCause());
