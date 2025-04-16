@@ -37,7 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -189,9 +191,19 @@ public class CarServiceImpl implements CarService {
     @Transactional
     @Override
     public void importCars(MultipartFile file) throws IOException {
-        List<Car> cars = carExcelService.importFromExcel(file);
+        List<Map<String, Object>> cars = carExcelService.importFromExcel(file);
 
-        carRepository.saveAll(cars);
+
+        List<Car> records = cars.stream().map(map -> {
+            PickupLocation pickupLocation  = pickupLocationRepository.findByName(map.get("pickupLocationName").toString());
+            CarModel carModel = carModelRepository.findByName(map.get("carModelName").toString());
+            Car car = (Car) map.get("car");
+            car.setCarModel(carModel);
+            car.setPickupLocation(pickupLocation);
+            return car;
+        }).collect(Collectors.toList());
+
+        carRepository.saveAll(records);
         log.info("Import file successfully");
     }
 }

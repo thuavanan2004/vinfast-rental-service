@@ -56,4 +56,6 @@ public interface CarModelRepository extends JpaRepository<CarModel, Long> {
             @Param("returnTime") LocalDateTime returnTime,
             @Param("rentalType") RentalType rentalType
     );
+
+    CarModel findByName(String name);
 }

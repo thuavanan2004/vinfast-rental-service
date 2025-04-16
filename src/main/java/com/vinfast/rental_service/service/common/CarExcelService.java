@@ -19,7 +19,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -192,8 +194,8 @@ public class CarExcelService {
 
 //    Import
 
-    public List<Car> importFromExcel(MultipartFile file) throws IOException {
-        List<Car> cars = new ArrayList<>();
+    public List<Map<String, Object>> importFromExcel(MultipartFile file) throws IOException {
+        List<Map<String, Object>> cars = new ArrayList<>();
         try (InputStream in = file.getInputStream();
              XSSFWorkbook workbook = new XSSFWorkbook(in)) {
 
@@ -256,10 +258,16 @@ public class CarExcelService {
                 car.setCreatedAt(createdAt);
                 car.setUpdatedAt(updatedAt);
 
-                cars.add(car);
+                Map<String, Object> record = new HashMap<>();
+                record.put("car", car);
+                record.put("carModelName", carModelName);
+                record.put("pickupLocationName", pickupLocationName);
+
+                cars.add(record);
             }
         }
         log.info("Imported {} cars from Excel file: {}", cars.size(), file);
+
         return cars;
     }
 
