@@ -37,9 +37,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder().name(name).email(email).build()));
 
-        String token = jwtService.generateAccessToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        TokenResponse res = TokenResponse.builder().accessToken(token).userId(user.getId()).build();
+        TokenResponse res = TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).userId(user.getId()).build();
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(res));
     }
