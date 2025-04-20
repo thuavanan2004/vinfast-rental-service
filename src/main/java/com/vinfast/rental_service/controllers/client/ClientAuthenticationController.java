@@ -11,6 +11,7 @@ import com.vinfast.rental_service.service.Impl.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -124,10 +125,15 @@ public class ClientAuthenticationController {
     }
 
     @Operation(summary = "Social login with google | facebook")
-    @PostMapping("/social-login")
-    public ResponseData<?> socialAuth(@RequestParam("login-type") String loginType, HttpServletRequest request) {
+    @GetMapping("/social-login")
+    public ResponseData<?> socialAuth(@RequestParam("login-type") String loginType, HttpServletResponse response) {
         log.info("Social login");
         try {
+            if(loginType.equalsIgnoreCase("google")){
+                response.sendRedirect("/oauth2/authorization/google");
+            }else {
+                response.sendRedirect("/oauth2/authorization/facebook");
+            }
             return new ResponseData<>(HttpStatus.OK.value(), "Social login successfully");
         } catch (Exception e) {
             log.error("errorMessage={}", e.getMessage(), e.getCause());
