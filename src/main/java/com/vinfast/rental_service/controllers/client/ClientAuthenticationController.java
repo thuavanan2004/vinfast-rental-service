@@ -16,10 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -123,6 +120,18 @@ public class ClientAuthenticationController {
         } catch (Exception e) {
             log.error("errorMessage={}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Reset password failed");
+        }
+    }
+
+    @Operation(summary = "Social login with google | facebook")
+    @PostMapping("/social-login")
+    public ResponseData<?> socialAuth(@RequestParam("login-type") String loginType, HttpServletRequest request) {
+        log.info("Social login");
+        try {
+            return new ResponseData<>(HttpStatus.OK.value(), "Social login successfully");
+        } catch (Exception e) {
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Social login failed");
         }
     }
 }

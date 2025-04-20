@@ -34,9 +34,10 @@ import java.util.List;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private static final String[] WHITE_LIST = {"/api/public/**", "/api/admin/auth/**", "/api/client/auth/**", "/api/client/cars/**"};
+    private static final String[] WHITE_LIST = {"/api/public/**", "/api/admin/auth/**", "/api/client/auth/**", "/api/client/cars/**", "/oauth2/**"};
     private final JwtAuthenticationFilter JwtAuthenticationFilter;
     private final CustomAuthenticationProvider customAuthProvider;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/client/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2SuccessHandler))
                 .addFilterBefore(JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
