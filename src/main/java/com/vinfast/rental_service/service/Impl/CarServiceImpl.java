@@ -12,23 +12,17 @@ import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
 import com.vinfast.rental_service.mapper.CarMapper;
 import com.vinfast.rental_service.mapper.MaintenanceMapper;
-import com.vinfast.rental_service.model.Car;
-import com.vinfast.rental_service.model.CarModel;
-import com.vinfast.rental_service.model.MaintenanceLog;
-import com.vinfast.rental_service.model.PickupLocation;
+import com.vinfast.rental_service.model.*;
 import com.vinfast.rental_service.repository.CarModelRepository;
 import com.vinfast.rental_service.repository.CarRepository;
 import com.vinfast.rental_service.repository.MaintenanceRepository;
 import com.vinfast.rental_service.repository.PickupLocationRepository;
+import com.vinfast.rental_service.repository.specification.CarSpecificationBuilder;
+import com.vinfast.rental_service.repository.specification.UserSpecificationBuilder;
 import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.service.common.CarExcelService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.Function;
-import org.apache.poi.ss.formula.functions.T;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -37,11 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.vinfast.rental_service.utils.AppConst.SEARCH_SPEC_OPERATOR;
 
 @Slf4j
 @Service
@@ -159,6 +154,34 @@ public class CarServiceImpl implements CarService {
         Page<MaintenanceLog> records = maintenanceRepository.findAllByCarId(carId, pageable);
 
         List<MaintenanceResponse> list = records.stream().map(maintenanceMapper::toDTO).toList();
+        return PageResponse.builder()
+                .page(records.getNumber())
+                .size(records.getSize())
+                .totalPage(records.getTotalPages())
+                .items(list)
+                .build();
+    }
+
+    @Override
+    public PageResponse<?> getCars(Pageable pageable, String[] cars) {
+
+        Page<Car> records;
+        if(cars != null){
+            CarSpecificationBuilder builder = new CarSpecificationBuilder();
+            Pattern pattern = Pattern.compile(SEARCH_SPEC_OPERATOR);
+            for (String c : cars){
+                Matcher matcher = pattern.matcher(c);
+                if(matcher.find()){
+                    builder.with(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5));
+                }
+            }
+            records = carRepository.findAll(Objects.requireNonNull(builder.build()), pageable);
+        }else {
+            records = carRepository.findAll(pageable);
+        }
+
+        List<CarResponse> list = records.stream().map(carMapper::toDTO).toList();
+
         return PageResponse.builder()
                 .page(records.getNumber())
                 .size(records.getSize())

@@ -4,7 +4,9 @@ import com.vinfast.rental_service.model.Car;
 import com.vinfast.rental_service.repository.projections.CarStatsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
@@ -12,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface CarRepository extends JpaRepository<Car, Long> {
+public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificationExecutor<Car> {
     boolean existsByLicensePlateOrVinNumber(String licensePlate, String vinNumber);
 
     boolean existsByLicensePlateAndIdNot(String licensePlate, long carId);

@@ -29,6 +29,8 @@ public interface CarService {
 
     PageResponse<?> maintenanceReportsByCarId(long carId, Pageable pageable);
 
+    PageResponse<?> getCars(Pageable pageable, String[] cars);
+
     PageResponse<?> getListCarByCarModel(long carModelId, Pageable pageable);
 
     void exportCars() throws IOException;

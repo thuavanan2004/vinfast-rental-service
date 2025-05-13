@@ -1,6 +1,6 @@
 package com.vinfast.rental_service.repository.specification;
 
-import com.vinfast.rental_service.model.RentalOrder;
+import com.vinfast.rental_service.model.Car;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -12,11 +12,12 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Getter
 @RequiredArgsConstructor
-public class RentalOrderSpecification implements Specification<RentalOrder> {
+public class CarSpecification implements Specification<Car> {
+
     private final SpecSearchCriteria criteria;
 
     @Override
-    public Predicate toPredicate(@NonNull Root<RentalOrder> root, CriteriaQuery<?> query, @NonNull CriteriaBuilder criteriaBuilder) {
+    public Predicate toPredicate(@NonNull Root<Car> root, CriteriaQuery<?> query, @NonNull CriteriaBuilder criteriaBuilder) {
         return switch (criteria.getOperation()){
             case EQUALITY -> criteriaBuilder.equal(root.get(criteria.getKey()), criteria.getValue());
             case NEGATION -> criteriaBuilder.notEqual(root.get(criteria.getKey()), criteria.getValue());

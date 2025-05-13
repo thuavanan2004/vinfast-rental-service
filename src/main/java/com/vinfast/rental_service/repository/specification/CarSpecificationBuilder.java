@@ -1,6 +1,6 @@
 package com.vinfast.rental_service.repository.specification;
 
-import com.vinfast.rental_service.model.User;
+import com.vinfast.rental_service.model.Car;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
@@ -8,18 +8,18 @@ import java.util.List;
 
 import static com.vinfast.rental_service.repository.specification.SearchOperation.*;
 
-public class UserSpecificationBuilder {
+public class CarSpecificationBuilder {
     private final List<SpecSearchCriteria> params;
 
-    public UserSpecificationBuilder() {
+    public CarSpecificationBuilder() {
         this.params = new ArrayList<>();
     }
 
-    public  UserSpecificationBuilder with(String key, String operation, String value, String prefix, String suffix){
+    public  CarSpecificationBuilder with(String key, String operation, String value, String prefix, String suffix){
         return with(key, operation, value, prefix, suffix, null);
     }
 
-    public UserSpecificationBuilder with(String key, String operation, String value, String prefix, String suffix, String orPredicate){
+    public CarSpecificationBuilder with(String key, String operation, String value, String prefix, String suffix, String orPredicate){
         SearchOperation searchOperation = SearchOperation.getSimpleOperation(operation.charAt(0));
         if(searchOperation != null){
             if(searchOperation == EQUALITY){
@@ -38,12 +38,12 @@ public class UserSpecificationBuilder {
         return this;
     }
 
-    public Specification<User> build(){
+    public Specification<Car> build(){
         if(params.isEmpty()) return null;
-        Specification<User> result  = new UserSpecification(params.get(0));
+        Specification<Car> result  = new CarSpecification(params.get(0));
         for(int i = 0; i < params.size(); i ++){
             result = params.get(i).isOrPredicate() ?
-                    Specification.where(result).or(new UserSpecification(params.get(i))) : Specification.where(result).and(new UserSpecification(params.get(i)));
+                    Specification.where(result).or(new CarSpecification(params.get(i))) : Specification.where(result).and(new CarSpecification(params.get(i)));
         }
         return result;
     }

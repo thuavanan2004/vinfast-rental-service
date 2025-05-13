@@ -41,6 +41,19 @@ public class AdminCarController {
     private final CarService carService;
 
     @PreAuthorize("hasAuthority('car:read')")
+    @Operation(summary = "Get list car")
+    @GetMapping("")
+    public ResponseData<?> getCars(Pageable pageable, @RequestParam(required = false) String[] cars){
+        log.info("Get list car");
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Get list car successfully", carService.getCars(pageable, cars));
+        }catch (Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Get list car failed");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('car:read')")
     @Operation(summary = "Get list car by car model id")
     @GetMapping("/car-models/{carModelId}")
     public ResponseData<?> getListCarByCarModel(@PathVariable @Min(1) long carModelId, Pageable pageable){
