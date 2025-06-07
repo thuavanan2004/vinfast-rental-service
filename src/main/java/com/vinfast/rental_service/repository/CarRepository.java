@@ -25,23 +25,22 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
 
     @Query(value = """
         SELECT
-            c.id AS carId,
-            c.license_plate AS licensePlate,
-            ci.image_url as carImage,
-            cm.name AS carModelName,
-            COUNT(ro.id) AS rentalCount,
-            COALESCE(SUM(ro.total_price), 0) AS totalRevenue
-        FROM cars c
-        JOIN car_models cm ON c.car_model_id = cm.id
-        LEFT JOIN car_images ci 
+             cm.id AS carModelId,
+             cm.name AS carModelName,
+             ci.image_url AS carImage,
+             COUNT(ro.id) AS rentalCount,
+             COALESCE(SUM(ro.total_price), 0) AS totalRevenue
+        FROM car_models cm
+        LEFT JOIN cars c ON cm.id = c.car_model_id
+        LEFT JOIN car_images ci\s
             ON cm.id = ci.car_model_id AND ci.is_primary = 1
-        LEFT JOIN rental_orders ro 
-            ON c.id = ro.car_id 
-            AND ro.status = 'completed' 
+        LEFT JOIN rental_orders ro\s
+            ON c.id = ro.car_id\s
+            AND ro.status = 'completed'\s
             AND ro.created_at BETWEEN :start AND :end
-        GROUP BY c.id, c.license_plate, ci.image_url, cm.name
+        GROUP BY cm.id, cm.name, ci.image_url
         ORDER BY rentalCount DESC
-        LIMIT 10;
+        LIMIT 5; 
         """, nativeQuery = true)
     List<CarStatsProjection> findPeriodStats(
             @Param("start") LocalDateTime start,

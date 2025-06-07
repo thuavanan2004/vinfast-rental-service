@@ -16,13 +16,13 @@ import com.vinfast.rental_service.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -57,13 +57,7 @@ public class DashboardServiceImpl implements DashboardService {
                 periodInfo.dateFormat()
         );
 
-        List<Object[]> previousStats = rentalOrderRepository.findPeriodStats(
-                periodInfo.startDate().minus(periodInfo.period(), periodInfo.unit()),
-                periodInfo.startDate(),
-                periodInfo.dateFormat()
-        );
-
-        return buildResponse(currentStats, previousStats, period);
+        return buildResponse(currentStats, period);
     }
 
     @Override
@@ -77,12 +71,7 @@ public class DashboardServiceImpl implements DashboardService {
                 periodInfo.dateFormat()
         );
 
-        List<Object[]> previousStats = userRepository.findPeriodStats(
-                periodInfo.startDate().minus(periodInfo.period, periodInfo.unit),
-                periodInfo.startDate(),
-                periodInfo.dateFormat()
-        );
-        return buildCustomerResponse(currentStats, previousStats, period);
+        return buildCustomerResponse(currentStats, period);
     }
 
     @Override
@@ -97,19 +86,20 @@ public class DashboardServiceImpl implements DashboardService {
 
         List<CarStatsResponse.CarRentalMost> list = projections.stream()
                 .map(p -> CarStatsResponse.CarRentalMost.builder()
-                        .carId(p.getCarId())
-                        .licensePlate(p.getLicensePlate())
-                        .carImage(p.getCarImage())
+                        .carModelId(p.getCarModelId())
                         .carModelName(p.getCarModelName())
+                        .carImage(p.getCarImage())
                         .rentalCount(p.getRentalCount())
                         .totalRevenue(p.getTotalRevenue())
-                        .build()).collect(Collectors.toList());
+                        .build())
+                .collect(Collectors.toList());
 
         return CarStatsResponse.builder()
                 .period(period)
                 .carRentalMostList(list)
                 .build();
     }
+
 
     private record PeriodInfo(
             LocalDateTime startDate,
@@ -152,26 +142,44 @@ public class DashboardServiceImpl implements DashboardService {
         );
     }
 
-    private RentalOrderStatsResponse buildResponse(List<Object[]> current,
-                                                   List<Object[]> previous,
-                                                   String period) {
+    private RentalOrderStatsResponse buildResponse(List<Object[]> current, String period) {
         Map<String, BigDecimal[]> currentMap = mapToPeriodStats(current);
-        Map<String, BigDecimal[]> previousMap = mapToPeriodStats(previous);
 
-        List<RentalOrderStatsResponse.TimePeriodStat> stats = currentMap.entrySet().stream()
-                .map(entry -> {
-                    String time = entry.getKey();
-                    BigDecimal currentRevenue = entry.getValue()[0];
-                    BigDecimal currentCount = entry.getValue()[1];
-                    BigDecimal[] previousValues = previousMap.getOrDefault(time, new BigDecimal[2]);
+        List<RentalOrderStatsResponse.TimePeriodStat> stats = new ArrayList<>();
+        BigDecimal previousRevenue = null;
+        BigDecimal previousCount = null;
 
-                    return RentalOrderStatsResponse.TimePeriodStat.builder()
-                            .period(time)
-                            .totalRevenue(calculateRevenueStat(currentRevenue, previousValues[0]))
-                            .orderCount(calculateOrderStat(currentCount, previousValues[1]))
-                            .build();
-                })
-                .collect(Collectors.toList());
+        List<String> sortedTimes = new ArrayList<>(currentMap.keySet());
+        Collections.sort(sortedTimes);
+
+        for (String time : sortedTimes) {
+            BigDecimal currentRevenue = currentMap.get(time)[0];
+            BigDecimal currentCount = currentMap.get(time)[1];
+
+            BigDecimal revenuePercentageChange = calculatePercentageChange(previousRevenue, currentRevenue);
+            BigDecimal countPercentageChange = calculatePercentageChange(previousCount, currentCount);
+
+            RentalOrderStatsResponse.RevenueStat revenueStat = RentalOrderStatsResponse.RevenueStat.builder()
+                    .amount(currentRevenue)
+                    .percentageChange(revenuePercentageChange)
+                    .build();
+
+            RentalOrderStatsResponse.OrderStat orderStat = RentalOrderStatsResponse.OrderStat.builder()
+                    .count(currentCount != null ? currentCount.longValue() : 0L)
+                    .percentageChange(countPercentageChange)
+                    .build();
+
+            RentalOrderStatsResponse.TimePeriodStat stat = RentalOrderStatsResponse.TimePeriodStat.builder()
+                    .period(time)
+                    .totalRevenue(revenueStat)
+                    .orderCount(orderStat)
+                    .build();
+
+            stats.add(stat);
+
+            previousRevenue = currentRevenue;
+            previousCount = currentCount;
+        }
 
         return RentalOrderStatsResponse.builder()
                 .period(period)
@@ -179,30 +187,35 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    private CustomerStatsResponse buildCustomerResponse(List<Object[]> current,
-                                                        List<Object[]> previous,
-                                                        String period){
-        Map<String, BigDecimal[]> currentMap = mapCustomerToPeriodStats(current);
-        Map<String, BigDecimal[]> previousMap = mapCustomerToPeriodStats(previous);
 
-        List<CustomerStatsResponse.TimePeriodStat> stats = currentMap.entrySet().stream().map(entry -> {
+
+    private CustomerStatsResponse buildCustomerResponse(List<Object[]> statsNow, String period) {
+        Map<String, BigDecimal[]> currentMap = mapCustomerToPeriodStats(statsNow);
+
+        List<CustomerStatsResponse.TimePeriodStat> stats = new ArrayList<>();
+        BigDecimal previousCount = null;
+
+        for (Map.Entry<String, BigDecimal[]> entry : currentMap.entrySet()) {
             String time = entry.getKey();
             BigDecimal currentCount = entry.getValue()[0];
-            BigDecimal[] previousCount = previousMap.getOrDefault(time, new BigDecimal[2]);
 
-            return CustomerStatsResponse.TimePeriodStat.builder()
+            BigDecimal percentageChange = calculatePercentageChange(previousCount, currentCount);
+
+            stats.add(CustomerStatsResponse.TimePeriodStat.builder()
                     .period(time)
                     .count(currentCount.longValue())
-                    .percentageChange(calculatePercentageChange(previousCount[0], currentCount))
-                    .build();
+                    .percentageChange(percentageChange)
+                    .build());
 
-        }).collect(Collectors.toList());
+            previousCount = currentCount;
+        }
 
         return CustomerStatsResponse.builder()
                 .period(period)
                 .stats(stats)
                 .build();
     }
+
 
     private RentalOrderStatsResponse.RevenueStat calculateRevenueStat(BigDecimal current, BigDecimal previous) {
         BigDecimal percentage = calculatePercentageChange(previous, current);
@@ -240,14 +253,18 @@ public class DashboardServiceImpl implements DashboardService {
                 row -> new BigDecimal[] {
                         safeToBigDecimal(row[1]),
                         safeToBigDecimal(row[2])
-                }
+                },
+                (v1, v2) -> v1,
+                LinkedHashMap::new
         ));
     }
 
     private Map<String, BigDecimal[]> mapCustomerToPeriodStats(List<Object[]> stats) {
         return stats.stream().filter(Objects::nonNull).collect(Collectors.toMap(
                 row -> safeToString(row[0]),
-                row -> new BigDecimal[] {safeToBigDecimal(row[1])}
+                row -> new BigDecimal[] {safeToBigDecimal(row[1])},
+                (v1, v2) -> v1,
+                LinkedHashMap::new
         ));
     }
 

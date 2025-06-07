@@ -2,6 +2,7 @@ package com.vinfast.rental_service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -32,5 +33,6 @@ public class CarImage {
     private Integer displayOrder = 0;
 
     @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

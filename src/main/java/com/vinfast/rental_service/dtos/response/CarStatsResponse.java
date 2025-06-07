@@ -12,17 +12,16 @@ import java.util.List;
 @Builder
 public class CarStatsResponse {
     private String period;
-    List<CarRentalMost> carRentalMostList;
+    private List<CarRentalMost> carRentalMostList;
 
     @Getter
     @Builder
     public static class CarRentalMost {
-        private Integer carId;
-        private String carImage;
-        private String licensePlate;
+        private Long carModelId;
         private String carModelName;
-        private Long rentalCount;
+        private String carImage;
+        private Integer rentalCount;
         private BigDecimal totalRevenue;
     }
-
 }
+

@@ -2,7 +2,6 @@ package com.vinfast.rental_service.controllers.admin;
 
 
 import com.vinfast.rental_service.dtos.request.CarCreateRequest;
-import com.vinfast.rental_service.dtos.request.CarModelCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarUpdateRequest;
 import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
 import com.vinfast.rental_service.dtos.response.ResponseData;
@@ -14,7 +13,6 @@ import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.validate.EnumPattern;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;

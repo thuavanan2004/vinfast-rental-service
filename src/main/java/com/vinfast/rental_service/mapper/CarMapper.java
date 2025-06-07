@@ -38,6 +38,7 @@ public interface CarMapper {
 
     @Named("mapPickupLocation")
     default CarResponse.PickupLocationDto mapPickupLocation(PickupLocation pickupLocation){
+        if (pickupLocation == null) return null;
         return new CarResponse.PickupLocationDto(
                 pickupLocation.getId(),
                 pickupLocation.getName(),

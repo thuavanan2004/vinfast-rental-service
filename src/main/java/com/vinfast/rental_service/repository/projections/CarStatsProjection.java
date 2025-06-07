@@ -3,10 +3,10 @@ package com.vinfast.rental_service.repository.projections;
 import java.math.BigDecimal;
 
 public interface CarStatsProjection {
-    Integer getCarId();
-    String getLicensePlate();
-    String getCarImage();
+    Long getCarModelId();
     String getCarModelName();
-    Long getRentalCount();
+    String getCarImage();
+    Integer getRentalCount();
     BigDecimal getTotalRevenue();
 }
+

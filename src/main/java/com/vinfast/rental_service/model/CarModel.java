@@ -4,6 +4,8 @@ import com.vinfast.rental_service.enums.CarModelStatus;
 import com.vinfast.rental_service.enums.VehicleType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -92,9 +94,11 @@ public class CarModel {
     private CarModelStatus status = CarModelStatus.available;
 
     @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
+    @UpdateTimestamp
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate
