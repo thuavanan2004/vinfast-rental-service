@@ -204,8 +204,14 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public void exportCars(HttpServletResponse response, Pageable pageable) throws IOException {
-        Page<Car> carPage = carRepository.findAll(pageable);
-        List<Car> cars = carPage.getContent();
+        List<Car> cars;
+        if (pageable == null || pageable.isUnpaged()) {
+            cars = carRepository.findAll();
+        } else {
+            Page<Car> carPage = carRepository.findAll(pageable);
+            cars = carPage.getContent();
+        }
+
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=cars.xlsx");
