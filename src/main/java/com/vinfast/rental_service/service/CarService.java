@@ -4,6 +4,7 @@ import com.vinfast.rental_service.dtos.request.CarCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarUpdateRequest;
 import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
 import com.vinfast.rental_service.dtos.response.CarResponse;
+import com.vinfast.rental_service.dtos.response.ImportResult;
 import com.vinfast.rental_service.dtos.response.MaintenanceDetailResponse;
 import com.vinfast.rental_service.dtos.response.PageResponse;
 import com.vinfast.rental_service.enums.CarStatus;
@@ -35,5 +36,5 @@ public interface CarService {
 
     void exportCars(HttpServletResponse response, Pageable pageable) throws IOException;
 
-    void importCars(MultipartFile file) throws IOException;
+    ImportResult importCars(MultipartFile file) throws IOException;
 }

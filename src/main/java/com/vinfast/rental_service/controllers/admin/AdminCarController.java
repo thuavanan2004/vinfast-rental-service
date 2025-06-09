@@ -216,9 +216,9 @@ public class AdminCarController {
     public ResponseData<?> importCarToExcel(@RequestParam("file") MultipartFile file) {
         log.info("Import file info car to excel ");
         try{
-            carService.importCars(file);
             return new ResponseData<>(HttpStatus.CREATED.value(),
-                    "Import file info car to excel  successfully");
+                    "Import file info car to excel  successfully",
+                    carService.importCars(file));
         }catch (IOException e) {
             log.error("Import file: IOException: {}", e.getMessage());
             return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());

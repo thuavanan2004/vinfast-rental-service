@@ -3,10 +3,7 @@ package com.vinfast.rental_service.service.Impl;
 import com.vinfast.rental_service.dtos.request.CarCreateRequest;
 import com.vinfast.rental_service.dtos.request.CarUpdateRequest;
 import com.vinfast.rental_service.dtos.request.MaintenanceRequest;
-import com.vinfast.rental_service.dtos.response.CarResponse;
-import com.vinfast.rental_service.dtos.response.MaintenanceDetailResponse;
-import com.vinfast.rental_service.dtos.response.MaintenanceResponse;
-import com.vinfast.rental_service.dtos.response.PageResponse;
+import com.vinfast.rental_service.dtos.response.*;
 import com.vinfast.rental_service.enums.CarStatus;
 import com.vinfast.rental_service.exceptions.InvalidDataException;
 import com.vinfast.rental_service.exceptions.ResourceNotFoundException;
@@ -23,6 +20,7 @@ import com.vinfast.rental_service.service.common.CarExcelService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -217,31 +215,61 @@ public class CarServiceImpl implements CarService {
 
     @Transactional
     @Override
-    public void importCars(MultipartFile file) throws IOException {
-        List<Map<String, Object>> cars = carExcelService.importFromExcel(file);
+    public ImportResult importCars(MultipartFile file) throws IOException {
+        List<Map<String, Object>> rows = carExcelService.importFromExcel(file);
 
-        Set<String> modelNames = cars.stream().map(map -> map.get("carModelName").toString()).collect(Collectors.toSet());
-        Set<String> locationNames = cars.stream().map(map -> map.get("pickupLocationName").toString()).collect(Collectors.toSet());
+        int total = rows.size();
+
+        Set<String> modelNames = rows.stream().map(map -> map.get("carModelName").toString()).collect(Collectors.toSet());
+        Set<String> locationNames = rows.stream().map(map -> map.get("pickupLocationName").toString()).collect(Collectors.toSet());
 
         Map<String, CarModel> carModelMap = carModelRepository.findByNameIn(modelNames).stream().collect(Collectors.toMap(CarModel::getName, m -> m));
 
         Map<String, PickupLocation> pickupLocationMap = pickupLocationRepository.findByNameIn(locationNames).stream()
                 .collect(Collectors.toMap(PickupLocation::getName, p -> p));
 
-        List<Car> records = cars.stream().map(map -> {
+        List<RowError> errors = new ArrayList<>();
+        int success = 0;
+
+        for (int i = 0; i < rows.size(); i ++){
+            Map<String, Object> map = rows.get(i);
+            int rowNum = i + 2;
+
+            Car car = (Car) map.get("car");
             String modelName = map.get("carModelName").toString();
             String locationName = map.get("pickupLocationName").toString();
 
-            CarModel carModel = carModelMap.get(modelName);
-            PickupLocation pickupLocation = pickupLocationMap.get(locationName);
+            if(!carModelMap.containsKey(modelName)){
+                errors.add(new RowError(i, "Car model không tồn tại " + modelName));
+                continue;
+            }
 
-            Car car = (Car) map.get("car");
-            car.setCarModel(carModel);
-            car.setPickupLocation(pickupLocation);
-            return car;
-        }).collect(Collectors.toList());
+            if(!pickupLocationMap.containsKey(locationName)){
+                errors.add(new RowError(i, "Pickup Location không tồn tại " + locationName));
+                continue;
+            }
 
-        carRepository.saveAll(records);
-        log.info("Import file successfully");
+            car.setCarModel(carModelMap.get(modelName));
+            car.setPickupLocation(pickupLocationMap.get(locationName));
+
+            if(carRepository.existsByVinNumber(car.getVinNumber())){
+                errors.add(new RowError(rowNum, "VIN đã tồn tại: " + car.getVinNumber()));
+                continue;
+            }
+
+            if (carRepository.existsByLicensePlate(car.getLicensePlate())) {
+                errors.add(new RowError(rowNum, "License plate đã tồn tại: " + car.getLicensePlate()));
+                continue;
+            }
+
+            try {
+                carRepository.save(car);
+                success++;
+            } catch (DataIntegrityViolationException ex) {
+                errors.add(new RowError(rowNum, "Lỗi DB: " + ex.getMostSpecificCause().getMessage()));
+            }
+        }
+
+        return new ImportResult(total, success, errors);
     }
 }

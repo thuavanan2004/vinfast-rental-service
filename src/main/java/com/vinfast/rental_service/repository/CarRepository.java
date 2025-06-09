@@ -21,6 +21,10 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
 
     boolean existsByVinNumberAndIdNot(String vinNumber, long carId);
 
+    boolean existsByLicensePlate(String licensePlate);
+
+    boolean existsByVinNumber(String vinNumber);
+
     Page<Car> findAllByCarModelId(long carModelId, Pageable pageable);
 
     @Query(value = """
