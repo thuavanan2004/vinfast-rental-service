@@ -217,10 +217,28 @@ public class AdminCarController {
         log.info("Import file info car to excel ");
         try{
             return new ResponseData<>(HttpStatus.CREATED.value(),
-                    "Import file info car to excel  successfully",
+                    "Import file info car to excel successfully",
                     carService.importCars(file));
         }catch (IOException e) {
             log.error("Import file: IOException: {}", e.getMessage());
+            return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('car:read')")
+    @Operation(summary = "Update list car with excel")
+    @PutMapping("/update/excel")
+    public ResponseData<?> updateCarWithExcel(@RequestParam("file") MultipartFile file) {
+        log.info("Update list car with excel");
+        try{
+            return new ResponseData<>(HttpStatus.CREATED.value(),
+                    "Update list car with excel successfully",
+                    carService.updateCarWithExcel(file));
+        }catch (IOException e) {
+            log.error("Update car with file: IOException: {}", e.getMessage());
             return new ResponseError(HttpStatus.NOT_FOUND.value(), e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage(), e.getCause());

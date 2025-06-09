@@ -240,12 +240,12 @@ public class CarServiceImpl implements CarService {
             String locationName = map.get("pickupLocationName").toString();
 
             if(!carModelMap.containsKey(modelName)){
-                errors.add(new RowError(i, "Car model không tồn tại " + modelName));
+                errors.add(new RowError(i, "Car model does not exist " + modelName));
                 continue;
             }
 
             if(!pickupLocationMap.containsKey(locationName)){
-                errors.add(new RowError(i, "Pickup Location không tồn tại " + locationName));
+                errors.add(new RowError(i, "Pickup Location does not exist " + locationName));
                 continue;
             }
 
@@ -253,12 +253,12 @@ public class CarServiceImpl implements CarService {
             car.setPickupLocation(pickupLocationMap.get(locationName));
 
             if(carRepository.existsByVinNumber(car.getVinNumber())){
-                errors.add(new RowError(rowNum, "VIN đã tồn tại: " + car.getVinNumber()));
+                errors.add(new RowError(rowNum, "VinNumber already exist: " + car.getVinNumber()));
                 continue;
             }
 
             if (carRepository.existsByLicensePlate(car.getLicensePlate())) {
-                errors.add(new RowError(rowNum, "License plate đã tồn tại: " + car.getLicensePlate()));
+                errors.add(new RowError(rowNum, "License plate already exist: " + car.getLicensePlate()));
                 continue;
             }
 
@@ -266,8 +266,71 @@ public class CarServiceImpl implements CarService {
                 carRepository.save(car);
                 success++;
             } catch (DataIntegrityViolationException ex) {
-                errors.add(new RowError(rowNum, "Lỗi DB: " + ex.getMostSpecificCause().getMessage()));
+                errors.add(new RowError(rowNum, "Internal server error: " + ex.getMostSpecificCause().getMessage()));
             }
+        }
+
+        return new ImportResult(total, success, errors);
+    }
+
+    @Override
+    public ImportResult updateCarWithExcel(MultipartFile file) throws IOException {
+        List<Map<String, Object>> rows = carExcelService.importFromExcel(file);
+        int total = rows.size();
+        int success = 0;
+        List<RowError> errors = new ArrayList<>();
+
+        Set<String> modelNames = rows.stream().map(map -> map.get("carModelName").toString()).collect(Collectors.toSet());
+        Set<String> locationNames = rows.stream().map(map -> map.get("pickupLocationName").toString()).collect(Collectors.toSet());
+
+        Map<String, CarModel> carModelMap = carModelRepository.findByNameIn(modelNames).stream().collect(Collectors.toMap(CarModel::getName, cm -> cm));
+        Map<String, PickupLocation> locationMap = pickupLocationRepository.findByNameIn(locationNames).stream().collect(Collectors.toMap(PickupLocation::getName, pl -> pl));
+
+        List<Car> toSave = new ArrayList<>();
+        for (int i = 0; i < total; i ++){
+            Map<String, Object> map = rows.get(i);
+            int rowNumber = i + 2;
+
+            Car car = (Car) map.get("car");
+            Car carUpdate = carRepository.findByVinNumber(car.getVinNumber());
+            if(carUpdate == null){
+                errors.add(new RowError(rowNumber, "Car to be updated does not exist. " + car.getVinNumber()));
+                continue;
+            }
+
+            String modelName = map.get("carModelName").toString();
+            String locationName = map.get("pickupLocationName").toString();
+            if(!carModelMap.containsKey(modelName)){
+                errors.add(new RowError(rowNumber, "Car model does not exist " + modelName));
+                continue;
+            }
+
+            if(!locationMap.containsKey(locationName)){
+                errors.add(new RowError(rowNumber, "Pickup Location does not exist " + locationName));
+                continue;
+            }
+
+            carUpdate.setCarModel(carModelMap.get(modelName));
+            carUpdate.setPickupLocation(locationMap.get(locationName));
+
+            carUpdate.setLicensePlate(car.getLicensePlate());
+            carUpdate.setVinNumber(car.getVinNumber());
+            carUpdate.setColor(car.getColor());
+            carUpdate.setManufacturingDate(car.getManufacturingDate());
+            carUpdate.setCurrentMileage(car.getCurrentMileage());
+            carUpdate.setStatus(car.getStatus());
+            carUpdate.setLastMaintenanceDate(car.getLastMaintenanceDate());
+            carUpdate.setNextMaintenanceMileage(car.getNextMaintenanceMileage());
+            carUpdate.setBatteryHealth(car.getBatteryHealth());
+            carUpdate.setCreatedAt(car.getCreatedAt());
+            carUpdate.setUpdatedAt(car.getUpdatedAt());
+
+            toSave.add(carUpdate);
+            success ++;
+        }
+
+        if (!toSave.isEmpty()) {
+            carRepository.saveAll(toSave);
         }
 
         return new ImportResult(total, success, errors);

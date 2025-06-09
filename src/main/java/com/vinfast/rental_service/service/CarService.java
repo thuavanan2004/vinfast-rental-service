@@ -37,4 +37,6 @@ public interface CarService {
     void exportCars(HttpServletResponse response, Pageable pageable) throws IOException;
 
     ImportResult importCars(MultipartFile file) throws IOException;
+
+    ImportResult updateCarWithExcel(MultipartFile file) throws  IOException;
 }
