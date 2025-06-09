@@ -13,6 +13,7 @@ import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.validate.EnumPattern;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -195,10 +196,10 @@ public class AdminCarController {
     @PreAuthorize("hasAuthority('car:read')")
     @Operation(summary = "Get file excel")
     @GetMapping("/export/excel")
-    public ResponseData<?> exportCarToExcel(HttpServletResponse response, Pageable pageable) {
+    public ResponseData<?> exportCarToExcel(HttpServletResponse response, Pageable pageable, HttpServletRequest request) {
         log.info("Export file info car to excel ");
         try{
-            carService.exportCars(response, pageable);
+            carService.exportCars(response, pageable, request);
             return new ResponseData<>(HttpStatus.CREATED.value(),
                     "Export file info car to excel  successfully");
         }catch (IOException e) {

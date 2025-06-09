@@ -17,6 +17,7 @@ import com.vinfast.rental_service.repository.PickupLocationRepository;
 import com.vinfast.rental_service.repository.specification.CarSpecificationBuilder;
 import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.service.common.CarExcelService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -203,15 +204,15 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public void exportCars(HttpServletResponse response, Pageable pageable) throws IOException {
-        List<Car> cars;
-        if (pageable == null || pageable.isUnpaged()) {
-            cars = carRepository.findAll();
-        } else {
-            Page<Car> carPage = carRepository.findAll(pageable);
-            cars = carPage.getContent();
-        }
+    public void exportCars(HttpServletResponse response, Pageable pageable, HttpServletRequest request) throws IOException {
+        boolean hasPagingParams = request.getParameter("page") != null || request.getParameter("size") != null;
 
+        List<Car> cars;
+        if (!hasPagingParams) {
+            cars = carRepository.findAll(); // không có page/size -> lấy hết
+        } else {
+            cars = carRepository.findAll(pageable).getContent(); // có page/size -> phân trang
+        }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=cars.xlsx");
