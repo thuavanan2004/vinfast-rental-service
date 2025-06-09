@@ -20,6 +20,7 @@ import com.vinfast.rental_service.repository.PickupLocationRepository;
 import com.vinfast.rental_service.repository.specification.CarSpecificationBuilder;
 import com.vinfast.rental_service.service.CarService;
 import com.vinfast.rental_service.service.common.CarExcelService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -204,11 +205,14 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public void exportCars() throws IOException {
-        List<Car> cars = carRepository.findAll();
+    public void exportCars(HttpServletResponse response, Pageable pageable) throws IOException {
+        Page<Car> carPage = carRepository.findAll(pageable);
+        List<Car> cars = carPage.getContent();
 
-        String filePath = "C:\\Users\\Admin\\Downloads\\cars.xlsx";
-        carExcelService.exportToExcel(cars, filePath);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=cars.xlsx");
+
+        carExcelService.exportToExcel(cars, response.getOutputStream());
     }
 
     @Transactional

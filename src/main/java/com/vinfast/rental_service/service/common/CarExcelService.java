@@ -9,11 +9,9 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,7 +30,7 @@ public class CarExcelService {
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
 //  Export
-    public void exportToExcel(List<Car> cars, String filePath) throws IOException {
+    public void exportToExcel(List<Car> cars, OutputStream out) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Cars");
 
@@ -44,10 +42,7 @@ public class CarExcelService {
 
             autoSizeColumns(sheet);
 
-            try (java.io.FileOutputStream fileOut = new java.io.FileOutputStream(filePath)) {
-                workbook.write(fileOut);
-                log.info("Excel file has been written to: {}", filePath);
-            }
+            workbook.write(out);
         }
     }
 

@@ -33,7 +33,7 @@ public interface CarService {
 
     PageResponse<?> getListCarByCarModel(long carModelId, Pageable pageable);
 
-    void exportCars() throws IOException;
+    void exportCars(HttpServletResponse response, Pageable pageable) throws IOException;
 
     void importCars(MultipartFile file) throws IOException;
 }
