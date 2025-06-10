@@ -5,6 +5,8 @@ import com.vinfast.rental_service.enums.AdminStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -56,11 +58,11 @@ public class Admin implements UserDetails, Serializable {
     @Column(columnDefinition = "ENUM('active', 'inactive', 'suspended') DEFAULT 'active'")
     private AdminStatus status = AdminStatus.active;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

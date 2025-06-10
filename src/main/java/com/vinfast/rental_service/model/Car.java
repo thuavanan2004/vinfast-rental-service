@@ -4,6 +4,8 @@ package com.vinfast.rental_service.model;
 import com.vinfast.rental_service.enums.CarStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,9 +55,11 @@ public class Car {
     @Column(name = "battery_health", columnDefinition = "DECIMAL(5,2) DEFAULT 100.00")
     private BigDecimal batteryHealth = BigDecimal.valueOf(100.00);
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

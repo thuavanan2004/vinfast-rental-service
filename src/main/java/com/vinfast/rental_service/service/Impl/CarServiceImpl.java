@@ -209,9 +209,9 @@ public class CarServiceImpl implements CarService {
 
         List<Car> cars;
         if (!hasPagingParams) {
-            cars = carRepository.findAll(); // không có page/size -> lấy hết
+            cars = carRepository.findAll();
         } else {
-            cars = carRepository.findAll(pageable).getContent(); // có page/size -> phân trang
+            cars = carRepository.findAll(pageable).getContent();
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

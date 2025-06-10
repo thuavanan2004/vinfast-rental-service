@@ -3,6 +3,7 @@ package com.vinfast.rental_service.model;
 import com.vinfast.rental_service.enums.InsuranceOptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ public class InsuranceOption {
     @Enumerated(EnumType.STRING)
     private InsuranceOptionStatus status = InsuranceOptionStatus.active;
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

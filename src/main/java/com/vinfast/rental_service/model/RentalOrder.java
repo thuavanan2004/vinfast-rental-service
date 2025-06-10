@@ -4,6 +4,8 @@ import com.vinfast.rental_service.enums.RentalOrderStatus;
 import com.vinfast.rental_service.enums.RentalType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -63,9 +65,11 @@ public class RentalOrder {
     @Column(name = "special_requests")
     private String specialRequests;
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
