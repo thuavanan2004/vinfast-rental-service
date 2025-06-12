@@ -35,7 +35,19 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
         assert name != null;
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder().name(name).email(email).build()));
+        User user = userRepository.findByEmail(email).orElseGet(() ->
+        {
+            String defaultPhone = "N/A";
+            String defaultPassword = "OAUTH2";
+            return userRepository.save(
+                    User.builder()
+                            .name(name)
+                            .email(email)
+                            .phone(defaultPhone)
+                            .password(defaultPassword)
+                            .build()
+            );
+        });
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);

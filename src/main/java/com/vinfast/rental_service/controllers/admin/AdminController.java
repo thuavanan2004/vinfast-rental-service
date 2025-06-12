@@ -82,7 +82,7 @@ public class AdminController {
         }
     }
 
-    @PreAuthorize("hasAuthority('role:create')")
+    @PreAuthorize("hasAuthority('role:read')")
     @Operation(summary = "Create role")
     @PostMapping("/roles/create")
     public ResponseData<?> createRole(@Valid @RequestBody RoleRequest request){
